@@ -14,11 +14,6 @@ from utils import cleanup, make_child_pid_filename, get_pid_from_file
 
 
 def run(args):
-    """
-
-    :param args:
-    :return:
-    """
     with open(settings.PPMS_PID_FILE, 'w') as f:
         f.write(str(os.getpid()))
 
@@ -94,6 +89,11 @@ def parser_cmd_options():
 def process_manager(args):
     if os.path.exists(settings.PPMS_PID_FILE):
         child_pid_file = make_child_pid_filename(args.task_type)
+
+        if not os.path.exists(child_pid_file):
+            print('[ERROR] -f 或 -b 指定的子进程任务并未启动')
+            exit(1)
+
         ppms_child_pid = get_pid_from_file(child_pid_file)
 
         if args.start:
@@ -105,9 +105,9 @@ def process_manager(args):
         elif args.restart:
             os.kill(ppms_child_pid, signal.SIGTERM)
             cleanup()
-            run(args)
+            process_manager(args)
     else:
-        if args.start:
+        if args.start or args.restart:
             run(args)
         else:
             print('ppms 并未启动，不能执行任何操作。')
