@@ -1,6 +1,7 @@
 .idea/
 *-sample.ini
 *.pid
+*.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

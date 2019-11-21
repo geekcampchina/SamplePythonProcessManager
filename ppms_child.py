@@ -19,8 +19,12 @@ def start_child(task_callback, *args):
     signal.signal(signal.SIGHUP, sighup_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
 
-    task_callback(args)
-    cleanup()
+    try:
+        task_callback(args)
+    except Exception as e:
+        hlog.error(e)
+    finally:
+        cleanup()
 
     hlog.exit_func(func_name)
 

@@ -5,12 +5,14 @@ import argparse
 import os
 import signal
 import sys
+from time import sleep
+
 import daemon
 from ppms_child import start_child
 from multiprocessing import Process
 import settings
 from signal_handler import sigint_handler
-from utils import cleanup, make_child_pid_filename, get_pid_from_file
+from utils import cleanup, make_child_pid_filename, get_pid_from_file, lock_child, wait_unlock
 
 
 def run(args):
@@ -25,6 +27,8 @@ def run(args):
 
     child_process = Process(target=start_child, args=(task_callback, '测试参数'))
     child_process.start()
+
+    lock_child(args.task_type, str(child_process.pid))
 
     with open(make_child_pid_filename(args.task_type), 'w') as f:
         f.write(str(child_process.pid))
@@ -101,10 +105,10 @@ def process_manager(args):
             exit(0)
         elif args.stop:
             os.kill(ppms_child_pid, signal.SIGTERM)
-            cleanup()
+            wait_unlock(args.task_type)
         elif args.restart:
             os.kill(ppms_child_pid, signal.SIGTERM)
-            cleanup()
+            wait_unlock(args.task_type)
             process_manager(args)
     else:
         if args.start or args.restart:
@@ -130,5 +134,9 @@ def main(args):
 
 
 if __name__ == '__main__':
-    main(parser_cmd_options())
-    cleanup()
+    try:
+        main(parser_cmd_options())
+    except Exception as e:
+        # 使用异常防止PID被删除两次的问题
+        cleanup()
+        raise Exception(e)
