@@ -39,7 +39,7 @@ def run(args):
 def parser_cmd_options():
     parser = argparse.ArgumentParser(prog='daemon',
                                      description='Python Process Manager Sample',
-                                     usage='%(prog)s --no-daemon [-f|-b] -B <baz> -V',
+                                     usage='%(prog)s --no-daemon -d [-f|-b] -B <baz> -V',
                                      epilog="Python编写的进程管理程序示例")
 
     parser.add_argument('--no-daemon',
