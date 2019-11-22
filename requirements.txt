@@ -1,3 +1,2 @@
 --index https://pypi.douban.com/simple/
 python-daemon
-psutil
