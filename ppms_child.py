@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import inspect
 import signal
-
 from signal_handler import sighup_handler
 from signal_handler import sigterm_handler
 from utils import cleanup
