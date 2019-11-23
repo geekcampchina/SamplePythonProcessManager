@@ -5,11 +5,12 @@ import inspect
 import signal
 import settings
 from time import sleep
+# 此处导入包仅仅解决语法问题，由于跨守护进程文件句柄已经被关闭
+# 实际生效的hlog在 process_manager 函数中被导入
+from settings import hlog
 
 
 def task_loop(name, callback):
-    from child_resource import hlog
-
     func_name = inspect.stack()[0][3]
     hlog.enter_func(func_name)
 
@@ -30,8 +31,6 @@ def task_loop(name, callback):
 
 
 def foo(*args):
-    from child_resource import hlog
-
     func_name = inspect.stack()[0][3]
     hlog.enter_func(func_name)
 
@@ -45,8 +44,6 @@ def foo(*args):
 
 
 def bar(*args):
-    from child_resource import hlog
-
     func_name = inspect.stack()[0][3]
     hlog.enter_func(func_name)
 

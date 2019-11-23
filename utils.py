@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-from time import sleep
-
 import settings
+import table_driven
+# for 子进程：此处导入包仅仅解决语法问题，由于跨守护进程文件句柄已经被关闭
+# for 子进程：实际生效的hlog在 process_manager 函数中被导入
+from settings import hlog
+from time import sleep
 
 
 def get_pid_from_file(pid_file):
@@ -22,7 +25,7 @@ def make_child_pid_filename(task_type):
     :param task_type: 任务类型
     :return:
     """
-    return 'ppms_{0}.pid'.format(settings.TASK_TYPE_NAMES[task_type])
+    return 'ppms_{0}.pid'.format(table_driven.TASK_TYPE_NAMES[task_type])
 
 
 def make_child_locak_filename(task_type):
@@ -31,7 +34,7 @@ def make_child_locak_filename(task_type):
     :param task_type: 任务类型
     :return:
     """
-    return 'ppms_{0}.lock'.format(settings.TASK_TYPE_NAMES[task_type])
+    return 'ppms_{0}.lock'.format(table_driven.TASK_TYPE_NAMES[task_type])
 
 
 def lock_child(task_type, child_pid):
@@ -53,8 +56,6 @@ def wait_unlock(task_type):
     :param task_type: 任务类型
     :return:
     """
-    from child_resource import hlog
-
     child_lock_file = make_child_locak_filename(task_type)
 
     while True:
@@ -73,7 +74,7 @@ def cleanup():
     :return:
     """
     try:
-        for task_type in settings.TASK_TYPE_NAMES.keys():
+        for task_type in table_driven.TASK_TYPE_NAMES.keys():
             child_pid_file = make_child_pid_filename(task_type)
             child_lock_file = make_child_locak_filename(task_type)
 

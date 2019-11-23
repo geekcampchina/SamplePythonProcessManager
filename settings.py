@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import signal
-from ppms_task import foo
-from ppms_task import bar
+from pathlib import PurePath
+from happy_python import HappyLog
 
 PPMS_PID_FILE = 'ppms.pid'
+CONFIG_DIR = PurePath(__file__).parent / 'conf'
+LOG_CONF_FILE = str(CONFIG_DIR / 'log.ini')
 
-TASK_TYPE_NAMES = {
-    0: 'foo',
-    1: 'bar',
-}
-
-TASK_NAME_CALLBACKS = {
-    'foo': foo,
-    'bar': bar,
-}
+hlog = HappyLog.get_instance(LOG_CONF_FILE)
 
 signals = {
     signal.SIGINT: False,

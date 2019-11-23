@@ -5,12 +5,13 @@ import argparse
 import os
 import signal
 import sys
-from time import sleep
-
 import daemon
+import settings
+import table_driven
 from ppms_child import start_child
 from multiprocessing import Process
-import settings
+# 主进程中hlog有效，子进程中无效
+from settings import hlog
 from signal_handler import sigint_handler
 from utils import cleanup, make_child_pid_filename, get_pid_from_file, lock_child, wait_unlock
 
@@ -20,10 +21,10 @@ def run(args):
         f.write(str(os.getpid()))
 
     if args.no_daemon:
-        print('**** 按Ctrl+C可以终止运行 ****')
+        hlog.info('**** 按Ctrl+C可以终止运行 ****')
 
-    task_name = settings.TASK_TYPE_NAMES[args.task_type]
-    task_callback = settings.TASK_NAME_CALLBACKS[task_name]
+    task_name = table_driven.TASK_TYPE_NAMES[args.task_type]
+    task_callback = table_driven.TASK_NAME_CALLBACKS[task_name]
 
     child_process = Process(target=start_child, args=(task_callback, '测试参数'))
     child_process.start()
@@ -91,17 +92,20 @@ def parser_cmd_options():
 
 
 def process_manager(args):
+    # 由于在守护进程中，文件句柄不会继承，需要手动导入需要的包或资源
+    from settings import hlog
+
     if os.path.exists(settings.PPMS_PID_FILE):
         child_pid_file = make_child_pid_filename(args.task_type)
 
         if not os.path.exists(child_pid_file):
-            print('[ERROR] -f 或 -b 指定的子进程任务并未启动')
+            hlog.error('-f 或 -b 指定的子进程任务并未启动')
             exit(1)
 
         ppms_child_pid = get_pid_from_file(child_pid_file)
 
         if args.start:
-            print('ppms已经在运行......')
+            hlog.error('ppms已经在运行......')
             exit(0)
         elif args.stop:
             os.kill(ppms_child_pid, signal.SIGTERM)
@@ -114,7 +118,7 @@ def process_manager(args):
         if args.start or args.restart:
             run(args)
         else:
-            print('ppms 并未启动，不能执行任何操作。')
+            hlog.error('ppms 并未启动，不能执行任何操作。')
             exit(1)
 
 
