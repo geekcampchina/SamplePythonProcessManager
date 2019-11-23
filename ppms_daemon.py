@@ -10,7 +10,6 @@ import settings
 import table_driven
 from ppms_child import start_child
 from multiprocessing import Process
-# 主进程中hlog有效，子进程中无效
 from settings import hlog
 from signal_handler import sigint_handler
 from utils import cleanup, make_child_pid_filename, get_pid_from_file, lock_child, wait_unlock
@@ -129,11 +128,20 @@ def main(args):
     if args.no_daemon:
         process_manager(args)
     else:
+        log_file_descriptors = []
+
+        for log_handler in hlog.get_logger().handlers:
+            log_file_descriptors.append(log_handler.stream)
+
         if args.debug:
-            with daemon.DaemonContext(working_directory=os.getcwd(), stdout=sys.stdout, stderr=sys.stderr):
+            with daemon.DaemonContext(files_preserve=log_file_descriptors,
+                                      working_directory=os.getcwd(),
+                                      stdout=sys.stdout,
+                                      stderr=sys.stderr):
                 process_manager(args)
         else:
-            with daemon.DaemonContext(working_directory=os.getcwd()):
+            with daemon.DaemonContext(files_preserve=log_file_descriptors,
+                                      working_directory=os.getcwd()):
                 process_manager(args)
 
 
