@@ -91,9 +91,6 @@ def parser_cmd_options():
 
 
 def process_manager(args):
-    # 由于在守护进程中，文件句柄不会继承，需要手动导入需要的包或资源
-    from settings import hlog
-
     if os.path.exists(settings.PPMS_PID_FILE):
         child_pid_file = make_child_pid_filename(args.task_type)
 
