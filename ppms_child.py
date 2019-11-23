@@ -26,4 +26,3 @@ def start_child(task_callback, *args):
         cleanup()
 
     hlog.exit_func(func_name)
-

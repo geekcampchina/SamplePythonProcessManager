@@ -86,6 +86,5 @@ def cleanup():
 
         if os.path.exists(settings.PPMS_PID_FILE):
             os.remove(settings.PPMS_PID_FILE)
-    except IOError as e:
+    except IOError:
         pass
-
