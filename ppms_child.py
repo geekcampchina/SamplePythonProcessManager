@@ -17,7 +17,7 @@ def start_child(task_callback, *args):
     signal.signal(signal.SIGTERM, sigterm_handler)
 
     try:
-        task_callback(args)
+        task_callback(*args)
     except Exception as e:
         hlog.error(e)
     finally:

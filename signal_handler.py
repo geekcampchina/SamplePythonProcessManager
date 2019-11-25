@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 import signal
 import settings
-from settings import hlog
+from common import hlog
+from process_status_lock import ProcessStatusLock
 
 
 def sigint_handler(sig, frame):
     settings.signals[signal.SIGINT] = True
+    ProcessStatusLock.should_kill(settings.PPMS_LOCK_FILE)
     hlog.debug('Ctrl+C，准备优雅地退出......')
 
 
