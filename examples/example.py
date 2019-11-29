@@ -26,6 +26,6 @@ def exit_callback(*args):
     """
     print("执行exit_callback函数")
 
+
 if __name__ == "__main__":
-    task_name = "example"
-    sppm.sppm_start(task_name, foo)
+    sppm.sppm_start(foo)

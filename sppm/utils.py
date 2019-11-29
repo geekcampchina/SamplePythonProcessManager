@@ -4,7 +4,7 @@
 import os
 import signal
 
-from sppm.settings import PPMS_CHILD_PID_FILE, PPMS_LOCK_FILE, PPMS_PID_FILE, hlog, signals, TASK_NAME
+from sppm.settings import hlog, signals, SPPM_CONFIG
 
 
 def cleanup():
@@ -13,14 +13,14 @@ def cleanup():
     :return:
     """
     try:
-        if os.path.exists(PPMS_CHILD_PID_FILE):
-            os.remove(PPMS_CHILD_PID_FILE)
+        if os.path.exists(SPPM_CONFIG.child_pid_file):
+            os.remove(SPPM_CONFIG.child_pid_file)
 
-        if os.path.exists(PPMS_LOCK_FILE):
-            os.remove(PPMS_LOCK_FILE)
+        if os.path.exists(SPPM_CONFIG.lock_file):
+            os.remove(SPPM_CONFIG.lock_file)
 
-        if os.path.exists(PPMS_PID_FILE):
-            os.remove(PPMS_PID_FILE)
+        if os.path.exists(SPPM_CONFIG.pid_file):
+            os.remove(SPPM_CONFIG.pid_file)
     except IOError:
         pass
 
@@ -36,7 +36,3 @@ def signal_monitor(exit_callback=None, *args):
 
         return True
     return False
-
-
-def gen_task_filename(filename):
-    return TASK_NAME + '_' + filename

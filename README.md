@@ -74,7 +74,7 @@ def foo():
 
 
 if __name__ == "__main__":
-    sppm.sppm_start("foo", foo)
+    sppm.sppm_start(foo)
 ```
 
 #### 阻塞模式
@@ -107,7 +107,7 @@ import sppm
 
 使用[sppm_block_start](#sppm-block-start)将启动函数传递给`sppm`, 指定任务名称为`bar`
 ```python
-sppm.sppm_block_start("bar", bar)
+sppm.sppm_block_start(bar)
 ```
 
 使用[lock](#lock)执行任务前添加文件锁
@@ -140,7 +140,7 @@ def bar():
 
 
 if __name__ == "__main__":
-    sppm.sppm_block_start("bar", bar)
+    sppm.sppm_block_start(bar)
 ```
 #### 启动方式
 终端进入`foo.py`所在文件夹  

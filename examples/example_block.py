@@ -35,5 +35,4 @@ def exit_callback(*args):
 
 
 if __name__ == "__main__":
-    task_name = "example_block"
-    sppm.sppm_block_start(task_name, foo) 
+    sppm.sppm_block_start(foo)

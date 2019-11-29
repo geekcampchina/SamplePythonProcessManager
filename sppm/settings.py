@@ -4,10 +4,7 @@
 import signal
 from pathlib import PurePath
 from happy_python import HappyLog
-
-PPMS_PID_FILE = 'ppms.pid'
-PPMS_LOCK_FILE = 'ppms.lock'
-PPMS_CHILD_PID_FILE = 'ppms_child.pid'
+from sppm import SppmConfig
 
 CONFIG_DIR = PurePath(__file__).parents[1] / 'conf'
 LOG_CONF_FILE = str(CONFIG_DIR / 'log.ini')
@@ -20,4 +17,4 @@ signals = {
     signal.SIGTERM: False
 }
 
-TASK_NAME = ''
+SPPM_CONFIG = SppmConfig.get_instance()

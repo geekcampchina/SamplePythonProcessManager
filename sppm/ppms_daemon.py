@@ -2,19 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import inspect
 import os
 import signal
 import sys
 import daemon
-from sppm import settings
 from sppm.ppms_child import start_child
 from multiprocessing import Process
 
 from sppm.process_status_lock import ProcessStatusLock
-from sppm.settings import hlog
+from sppm.settings import hlog, SPPM_CONFIG
 from sppm.signal_handler import sigint_handler
-from sppm.utils import cleanup, gen_task_filename
+from sppm.utils import cleanup
 
 wait_unlock_or_should_kill = {
     0: ProcessStatusLock.should_kill,
@@ -23,7 +21,7 @@ wait_unlock_or_should_kill = {
 
 
 def run(is_no_daemon, child_callback, *child_args):
-    with open(gen_task_filename(settings.PPMS_PID_FILE), 'w') as f:
+    with open(SPPM_CONFIG.pid_file, 'w') as f:
         f.write(str(os.getpid()))
 
     if is_no_daemon:
@@ -32,9 +30,9 @@ def run(is_no_daemon, child_callback, *child_args):
     child_process = Process(target=start_child, args=(child_callback, *child_args))
     child_process.start()
 
-    ProcessStatusLock.lock(child_process.pid, gen_task_filename(settings.PPMS_LOCK_FILE))
+    ProcessStatusLock.lock(child_process.pid, SPPM_CONFIG.lock_file)
 
-    with open(gen_task_filename(settings.PPMS_CHILD_PID_FILE), 'w') as f:
+    with open(SPPM_CONFIG.child_pid_file, 'w') as f:
         f.write(str(child_process.pid))
 
     child_process.join()
@@ -82,22 +80,22 @@ def parser_cmd_options():
 
 
 def process_manager(cmd_args, start_type, child_callback, *child_args):
-    if os.path.exists(gen_task_filename(settings.PPMS_PID_FILE)):
-        if not os.path.exists(gen_task_filename(settings.PPMS_CHILD_PID_FILE)):
+    if os.path.exists(SPPM_CONFIG.pid_file):
+        if not os.path.exists(SPPM_CONFIG.child_pid_file):
             print('子进程任务并未启动')
             exit(1)
 
-        ppms_child_pid = ProcessStatusLock.get_pid_from_file(settings.PPMS_CHILD_PID_FILE)
+        ppms_child_pid = ProcessStatusLock.get_pid_from_file(SPPM_CONFIG.child_pid_file)
 
         if cmd_args.start:
             hlog.error('ppms已经在运行......')
             exit(0)
         elif cmd_args.stop:
             os.kill(ppms_child_pid, signal.SIGTERM)
-            wait_unlock_or_should_kill[start_type](gen_task_filename(settings.PPMS_LOCK_FILE))
+            wait_unlock_or_should_kill[start_type](SPPM_CONFIG.lock_file)
         elif cmd_args.restart:
             os.kill(ppms_child_pid, signal.SIGTERM)
-            wait_unlock_or_should_kill[start_type](gen_task_filename(settings.PPMS_LOCK_FILE))
+            wait_unlock_or_should_kill[start_type](SPPM_CONFIG.lock_file)
             process_manager(cmd_args, start_type, child_callback, *child_args)
     else:
         if cmd_args.start or cmd_args.restart:
@@ -138,15 +136,11 @@ def start(start_type, child_callback, *child_args):
         raise Exception(e)
 
 
-def sppm_block_start(task_name, child_callback, *child_args):
-    settings.TASK_NAME = task_name
-
+def sppm_block_start(child_callback, *child_args):
     start_type = 0
     start(start_type, child_callback, *child_args)
 
 
-def sppm_start(task_name, child_callback, *child_args):
-    settings.TASK_NAME = task_name
-
+def sppm_start(child_callback, *child_args):
     start_type = 1
     start(start_type, child_callback, *child_args)
