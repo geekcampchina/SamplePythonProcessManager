@@ -4,11 +4,7 @@
 import os
 import signal
 
-from settings import PPMS_PID_FILE
-from settings import PPMS_CHILD_PID_FILE
-from settings import PPMS_LOCK_FILE
-from settings import signals
-from settings import hlog
+from sppm.settings import PPMS_CHILD_PID_FILE, PPMS_LOCK_FILE, PPMS_PID_FILE, hlog, signals, TASK_NAME
 
 
 def cleanup():
@@ -29,7 +25,7 @@ def cleanup():
         pass
 
 
-def signal_monitor(exit_callback, *args):
+def signal_monitor(exit_callback=None, *args):
     hlog.debug('signal_monitor......')
 
     if signals[signal.SIGINT] or signals[signal.SIGTERM]:
@@ -37,3 +33,10 @@ def signal_monitor(exit_callback, *args):
 
         if exit_callback:
             exit_callback(*args)
+
+        return True
+    return False
+
+
+def gen_task_filename(filename):
+    return TASK_NAME + '_' + filename

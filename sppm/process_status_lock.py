@@ -4,8 +4,9 @@ import signal
 from datetime import datetime
 import os
 from time import sleep
-from settings import hlog
-from utils import cleanup
+from sppm.settings import hlog
+from sppm.utils import cleanup, gen_task_filename
+from sppm import settings
 
 
 class ProcessStatusLock:
@@ -131,3 +132,7 @@ class ProcessStatusLock:
                 break
 
             sleep(1)
+
+
+def lock(lock_file_name=gen_task_filename(settings.PPMS_LOCK_FILE), is_work=False):
+    ProcessStatusLock.lock(os.getpid, lock_file_name, is_work)

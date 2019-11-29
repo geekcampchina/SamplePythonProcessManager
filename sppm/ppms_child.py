@@ -3,10 +3,10 @@
 
 import inspect
 import signal
-from signal_handler import sighup_handler
-from signal_handler import sigterm_handler
-from utils import cleanup
-from settings import hlog
+from sppm.signal_handler import sighup_handler
+from sppm.signal_handler import sigterm_handler
+from sppm.utils import cleanup
+from sppm.settings import hlog
 
 
 def start_child(task_callback, *args):

@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import signal
-import settings
-from common import hlog
-from process_status_lock import ProcessStatusLock
+
+from sppm import settings
+from sppm.process_status_lock import ProcessStatusLock
+from sppm.settings import hlog
+from sppm.utils import gen_task_filename
 
 
 def sigint_handler(sig, frame):
     settings.signals[signal.SIGINT] = True
-    ProcessStatusLock.should_kill(settings.PPMS_LOCK_FILE)
+    ProcessStatusLock.should_kill(gen_task_filename(settings.PPMS_LOCK_FILE))
     hlog.debug('Ctrl+C，准备优雅地退出......')
 
 
