@@ -15,7 +15,6 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.sppm_env*
 .env
 .venv
 env/

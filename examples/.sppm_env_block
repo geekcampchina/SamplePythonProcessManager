@@ -1,0 +1,3 @@
+pid=/tmp/exmaple_block.pid
+child_pid=/tmp/exmaple_block_child.pid
+lock=/tmp/exmaple_block.lock
