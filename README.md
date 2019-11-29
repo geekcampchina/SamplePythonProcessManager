@@ -1,4 +1,4 @@
-# Python Process Manager Sample
+# Sample Python Process Manager
 
 ## Standard signals
 
