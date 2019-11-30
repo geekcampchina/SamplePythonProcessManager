@@ -1,7 +1,8 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import sppm
-import os
 from time import sleep
-import inspect
 
 
 def foo():
@@ -12,19 +13,19 @@ def foo():
     exit_args = "foo"
     n = 0
     while True:
-        # 需要阻塞等待前上锁
-        sppm.lock()
-
         # 如果运行回调函数并返回True，则退出循环
         if sppm.signal_monitor(exit_callback, *exit_args):
             print('任务回调函数返回True，退出......')
             break
 
+        # 需要阻塞等待前上锁
+        sppm.working_lock()
+
         print('Run %d time(s) task->%s.' % (n, "foo"))
         n += 1
 
-        # 模拟任务执行需要两秒
-        sleep(2)
+        # 模拟任务执行需要十秒
+        sleep(10)
 
 
 def exit_callback(*args):
@@ -35,4 +36,4 @@ def exit_callback(*args):
 
 
 if __name__ == "__main__":
-    sppm.sppm_block_start(foo)
+    sppm.sppm_start(foo)

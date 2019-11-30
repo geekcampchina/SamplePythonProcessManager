@@ -1,23 +1,21 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
-import signal
 
+import signal
 from sppm import settings
-from sppm.process_status_lock import ProcessStatusLock
-from sppm.settings import hlog, SPPM_CONFIG
+from sppm.settings import hlog
 
 
 def sigint_handler(sig, frame):
     settings.signals[signal.SIGINT] = True
-    ProcessStatusLock.should_kill(SPPM_CONFIG.lock_file)
-    hlog.debug('Ctrl+C，准备优雅地退出......')
+    hlog.debug('收到 Ctrl+C 信号，准备退出......')
+
+
+def sigint_handler_exit(sig, frame):
+    hlog.debug('收到 Ctrl+C 信号，退出......')
+    exit(0)
 
 
 def sigterm_handler(sig, frame):
     settings.signals[signal.SIGTERM] = True
-    hlog.debug('触发 SIGTERM 信号，准备优雅地退出......')
-
-
-def sighup_handler(sig, frame):
-    settings.signals[signal.SIGHUP] = True
-    hlog.debug('触发 SIGHUP 信号，准备优雅地退出......')
+    hlog.debug('收到 SIGTERM 信号，准备退出......')

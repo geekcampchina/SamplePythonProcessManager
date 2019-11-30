@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
-import signal
+
 from datetime import datetime
 import os
 from time import sleep
 from sppm.settings import hlog, SPPM_CONFIG
-from sppm.utils import cleanup
 
 
 class ProcessStatusLock:
@@ -26,22 +25,35 @@ class ProcessStatusLock:
         等待子进程释放文件锁
         :return:
         """
-        while True:
-            hlog.debug('等待释放文件锁：%s' % lock_file)
+        try:
+            while True:
+                hlog.debug('从资源文件获取子进程状态，检测子进程是否空闲或退出......：%s' % lock_file)
 
-            if not os.path.exists(lock_file):
-                hlog.debug('文件锁：%s 已经释放' % lock_file)
-                break
+                if not ProcessStatusLock.is_working(lock_file) and ProcessStatusLock.is_idle(lock_file):
+                    hlog.debug('子进程空闲或已经退出')
+                    break
 
-            sleep(1)
+                sleep(1)
+
+            while True:
+                hlog.debug('等待释放文件锁：%s' % lock_file)
+
+                if not os.path.exists(lock_file):
+                    hlog.debug('文件锁：%s 已经释放' % lock_file)
+                    break
+
+                sleep(1)
+        except Exception as e:
+            del e
+            hlog.info('子进程已经退出')
 
     @staticmethod
     def lock(process_pid, lock_file, is_working=False):
         """
         子进程运行时，创建文件锁
-        :param process_pid:
-        :param lock_file:
-        :param is_working: 是否活跃
+        :param process_pid: 进程编号
+        :param lock_file: 资源文件路径
+        :param is_working: 工作状态
         :return:
         """
         block_timestamp = datetime.now().timestamp()
@@ -55,7 +67,7 @@ class ProcessStatusLock:
     def get_block_timestamp(lock_file):
         """
         从文件锁获取时间戳
-        :param lock_file:
+        :param lock_file: 资源文件路径
         :return:
         """
         block_timestamp = 0.0
@@ -74,64 +86,35 @@ class ProcessStatusLock:
     def is_idle(lock_file):
         """
         进程是否空闲
+        :param lock_file: 资源文件路径
         :return:
         """
         now_timestamp = datetime.now().timestamp()
         block_timestamp = ProcessStatusLock.get_block_timestamp(lock_file)
-        # print('now_timestamp=%f' % now_timestamp)
-        # print('block_timestamp=%f' % block_timestamp)
-        # print('ProcessStatusLock.MAX_IDLE_SECONDS=%f' % ProcessStatusLock.MAX_IDLE_SECONDS)
+        result = now_timestamp - block_timestamp >= ProcessStatusLock.MAX_IDLE_SECONDS
 
-        if now_timestamp - block_timestamp >= ProcessStatusLock.MAX_IDLE_SECONDS:
-            return True
-
-        return False
+        return result
 
     @staticmethod
     def is_working(lock_file):
         """
         进程活跃
-        :param lock_file:
-        :return: 1表示活跃，0表示空闲
+        :param lock_file: 资源文件路径
+        :return:
         """
         result = False
-        working_mark_line_no = 3
-        line_no = 1
+        total_line_num = 3
 
         with open(lock_file, 'r') as f:
-            if line_no == working_mark_line_no:
-                result = int(f.readline())
+            lines = f.readlines()
 
-            line_no += 1
+            if len(lines) != total_line_num:
+                raise ValueError('无效的资源文件：%s' % lock_file)
+
+            result = int(lines[2])
 
         return result
 
-    @staticmethod
-    def should_kill(lock_file):
-        """
-        是否可以杀死进程。
-        标记进程状态为：等待退出，然后自杀
-        :return:
-        """
-        process_id = ProcessStatusLock.get_pid_from_file(lock_file)
 
-        while True:
-            hlog.debug('读取文件锁时间戳，检测子进程是否空闲......：%s' % lock_file)
-
-            if not ProcessStatusLock.is_working(lock_file) and ProcessStatusLock.is_idle(lock_file):
-                hlog.debug('根据时间戳检测到子进程已经空闲，发送终止信号......')
-
-                # 发送终止信号，就算使用SIGKILL强制杀掉进程
-                # 代码用户也可以自行判断信号，跳过数据处理
-                os.kill(process_id, signal.SIGTERM)
-
-                os.kill(process_id, signal.SIGKILL)
-                cleanup()
-
-                break
-
-            sleep(1)
-
-
-def lock(is_work=False):
-    ProcessStatusLock.lock(os.getpid(), SPPM_CONFIG.lock_file, is_work)
+def working_lock():
+    ProcessStatusLock.lock(os.getpid(), SPPM_CONFIG.lock_file, True)

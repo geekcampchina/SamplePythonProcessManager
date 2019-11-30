@@ -1,3 +1,6 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import sppm
 from time import sleep
 
@@ -16,8 +19,8 @@ def foo():
         if sppm.signal_monitor(exit_callback, *exit_args):
             print('任务回调函数返回True，退出......')
             break
-        # 模拟任务执行需要两秒
-        sleep(2)
+        # 模拟任务执行需要十秒
+        sleep(10)
 
 
 def exit_callback(*args):

@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import inspect
 import signal
-from sppm.signal_handler import sighup_handler
 from sppm.signal_handler import sigterm_handler
 from sppm.utils import cleanup
 from sppm.settings import hlog
@@ -13,7 +12,6 @@ def start_child(task_callback, *args):
     func_name = inspect.stack()[0][3]
     hlog.enter_func(func_name)
 
-    signal.signal(signal.SIGHUP, sighup_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
 
     try:
