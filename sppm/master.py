@@ -16,6 +16,8 @@ from sppm.settings import hlog, SPPM_CONFIG
 from sppm.signal_handler import sigint_handler, sigint_handler_exit
 from sppm.utils import cleanup
 
+exit_status = 0
+
 
 def action_start(is_no_daemon, child_callback, *child_args):
     with open(SPPM_CONFIG.pid_file, 'w') as f:
@@ -124,12 +126,15 @@ def parser_cmd_options():
 
 
 def process_manager(cmd_args, child_callback, *child_args):
+    global exit_status
+
     if os.path.exists(SPPM_CONFIG.pid_file):
         if os.path.exists(SPPM_CONFIG.child_pid_file):
             child_pid = ProcessStatusLock.get_pid_from_file(SPPM_CONFIG.child_pid_file)
 
             if cmd_args.start:
-                hlog.info('sppm 已经在运行......')
+                hlog.error('sppm 已经在运行......')
+                exit_status = 1
             elif cmd_args.stop:
                 action_stop(child_pid)
             elif cmd_args.reload:
@@ -144,11 +149,13 @@ def process_manager(cmd_args, child_callback, *child_args):
                 pass
         else:
             hlog.error('子进程任务并未启动')
+            exit_status = 1
     else:
         if cmd_args.start:
             action_start(cmd_args.no_daemon, child_callback, *child_args)
         else:
             hlog.error('sppm 并未启动，不能执行任何操作。')
+            exit_status = 1
 
 
 def sppm_start(child_callback, *child_args):
@@ -184,3 +191,5 @@ def sppm_start(child_callback, *child_args):
         # 使用异常防止PID被删除两次的问题
         cleanup()
         raise Exception(e)
+
+    exit(exit_status)
