@@ -70,7 +70,7 @@ def action_status():
 
 
 def parser_cmd_options():
-    parser = argparse.ArgumentParser(prog='ppms',
+    parser = argparse.ArgumentParser(prog='sppm',
                                      description='进程管理工具',
                                      usage='%(prog)s --no-daemon -d -v '
                                            '[--start|--stop|--reload|--shutdown|--restart|--status]')
@@ -126,18 +126,18 @@ def parser_cmd_options():
 def process_manager(cmd_args, child_callback, *child_args):
     if os.path.exists(SPPM_CONFIG.pid_file):
         if os.path.exists(SPPM_CONFIG.child_pid_file):
-            ppms_child_pid = ProcessStatusLock.get_pid_from_file(SPPM_CONFIG.child_pid_file)
+            child_pid = ProcessStatusLock.get_pid_from_file(SPPM_CONFIG.child_pid_file)
 
             if cmd_args.start:
-                hlog.info('ppms已经在运行......')
+                hlog.info('sppm 已经在运行......')
             elif cmd_args.stop:
-                action_stop(ppms_child_pid)
+                action_stop(child_pid)
             elif cmd_args.reload:
-                action_reload(ppms_child_pid, cmd_args.no_daemon, child_callback, *child_args)
+                action_reload(child_pid, cmd_args.no_daemon, child_callback, *child_args)
             elif cmd_args.shutdown:
-                action_shutdown(ppms_child_pid)
+                action_shutdown(child_pid)
             elif cmd_args.restart:
-                action_restart(ppms_child_pid, cmd_args.no_daemon, child_callback, *child_args)
+                action_restart(child_pid, cmd_args.no_daemon, child_callback, *child_args)
             elif cmd_args.status:
                 action_status()
             else:
@@ -148,7 +148,7 @@ def process_manager(cmd_args, child_callback, *child_args):
         if cmd_args.start:
             action_start(cmd_args.no_daemon, child_callback, *child_args)
         else:
-            hlog.error('ppms 并未启动，不能执行任何操作。')
+            hlog.error('sppm 并未启动，不能执行任何操作。')
 
 
 def sppm_start(child_callback, *child_args):
