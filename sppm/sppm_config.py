@@ -6,9 +6,12 @@ SppmConfig类从环境变量指定的文件读取运行所需要的参数，参�
 """
 
 import os
+import sys
+from pathlib import Path
 
 _SppmConfigSingletonObj = None
 ENV_VAR_NAME = 'SPPM_ENV'
+DEFAULT_CONFIG_FILENAME = '.sppm_env'
 
 CONFIG_KEYS = [
     'pid',
@@ -23,20 +26,24 @@ class SppmConfig:
         self.child_pid_file = ''
         self.lock_file = ''
         self.configs = {}
-        self.env_file_path = os.environ[ENV_VAR_NAME]
+        self.env_file_path = ''
 
+        self.load_env()
         self.check_env()
         self.read_cfg()
         self.set_class_attrs()
 
+    def load_env(self):
+        if ENV_VAR_NAME not in os.environ:
+            self.env_file_path = Path(sys.argv[0]).absolute().parent / DEFAULT_CONFIG_FILENAME
+        else:
+            self.env_file_path = os.environ[ENV_VAR_NAME]
+
     def check_env(self):
         """
         检查环境变量文件
-        :return:
+        :return:菜单
         """
-        if ENV_VAR_NAME not in os.environ:
-            raise EnvironmentError('未设置环境变量 SPPM_ENV ')
-
         if not os.path.exists(self.env_file_path):
             raise FileNotFoundError('%s 文件不存在' % self.env_file_path)
 
