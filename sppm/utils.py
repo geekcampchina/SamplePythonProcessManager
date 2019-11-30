@@ -35,3 +35,38 @@ def signal_monitor(exit_callback=None, *args):
 
         return True
     return False
+
+
+def to_uptime_format(seconds):
+    """
+    将秒转换为友好的天、时、分、秒
+    :param seconds:
+    :return:
+    """
+    one_minute_seconds = 60
+    one_hour_seconds = 60 * 60
+    one_day_seconds = 24 * 60 * 60
+
+    days = seconds // one_day_seconds
+    left_seconds = seconds % one_day_seconds
+
+    hours = left_seconds // one_hour_seconds
+    left_seconds = left_seconds % one_hour_seconds
+
+    minutes = left_seconds // one_minute_seconds
+    _seconds = left_seconds % one_minute_seconds
+
+    result = ''
+
+    if days:
+        result += '%d day(s), ' % days
+
+    if hours:
+        result += '%d hour(s), ' % hours
+
+    if minutes:
+        result += '%d minute(s), ' % minutes
+
+    result += '%d second(s)' % _seconds
+
+    return result

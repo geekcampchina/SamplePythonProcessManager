@@ -1,2 +1,3 @@
 python-daemon
 Happy-Python
+psutil

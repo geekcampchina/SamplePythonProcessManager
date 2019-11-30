@@ -9,6 +9,8 @@ import signal
 import sys
 from sppm.child import start_child
 from multiprocessing import Process
+
+from sppm.process_status import ProcessStatus
 from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
 from sppm.signal_handler import sigint_handler, sigint_handler_exit
@@ -62,10 +64,16 @@ def action_restart(child_pid, is_no_daemon, child_callback, *child_args):
     action_start(is_no_daemon, child_callback, *child_args)
 
 
+def action_status():
+    ps = ProcessStatus(SPPM_CONFIG.lock_file)
+    print(ps)
+
+
 def parser_cmd_options():
     parser = argparse.ArgumentParser(prog='ppms',
                                      description='进程管理工具',
-                                     usage='%(prog)s --no-daemon -d -v [--start|--stop|--reload|--shutdown|--restart]')
+                                     usage='%(prog)s --no-daemon -d -v '
+                                           '[--start|--stop|--reload|--shutdown|--restart|--status]')
 
     parser.add_argument('--no-daemon',
                         help='不使用进程管理模式',
@@ -100,6 +108,10 @@ def parser_cmd_options():
                               help='强制杀掉子进程，并启动新的子进程',
                               action='store_true')
 
+    action_group.add_argument('--status',
+                              help='显示子进程状态',
+                              action='store_true')
+
     parser.add_argument('-v',
                         '--version',
                         help='显示版本信息',
@@ -126,6 +138,8 @@ def process_manager(cmd_args, child_callback, *child_args):
                 action_shutdown(ppms_child_pid)
             elif cmd_args.restart:
                 action_restart(ppms_child_pid, cmd_args.no_daemon, child_callback, *child_args)
+            elif cmd_args.status:
+                action_status()
             else:
                 pass
         else:
@@ -148,7 +162,7 @@ def sppm_start(child_callback, *child_args):
             signal.signal(signal.SIGINT, sigint_handler_exit)
 
         # 一些动作不需要守护进程执行
-        if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown:
+        if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown or cmd_args.status:
             process_manager(cmd_args, child_callback, *child_args)
         else:
             log_file_descriptors = []
