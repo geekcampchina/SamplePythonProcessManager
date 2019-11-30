@@ -46,6 +46,5 @@ build/
 dist/
 *.egg-info
 *.log
-conf/
 *.pid
 *.lock
