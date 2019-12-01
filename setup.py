@@ -27,7 +27,7 @@ setup(
     license='GPL',
     author='Chengdu Geek Camp',
     author_email='info@cdgeekcamp.com',
-    description="一个进程管理的库, 控制进程的前后台运行, 重启",
+    description="一个简化进程管理的 Python 库，丰富的命令行控制参数满足各种运行需求",
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
     packages=['sppm'],
