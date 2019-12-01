@@ -77,7 +77,7 @@ def action_status():
 def parser_cmd_options():
     parser = argparse.ArgumentParser(prog=Path(sys.argv[0]),
                                      description='简化进程管理的命令行工具',
-                                     usage='%(prog)s --no-daemon -d -v '
+                                     usage='%(prog)s --no-daemon -d -v -l'
                                            '[--start|--stop|--reload|--shutdown|--restart|--status]')
 
     parser.add_argument('--no-daemon',
