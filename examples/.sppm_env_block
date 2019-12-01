@@ -1,4 +1,4 @@
-pid=/tmp/exmaple_block.pid
-child_pid=/tmp/exmaple_block_child.pid
-lock=/tmp/exmaple_block.lock
-log=/tmp/exmaple_block.log
+pid=/tmp/example_block.pid
+child_pid=/tmp/example_block_child.pid
+lock=/tmp/example_block.lock
+log=/tmp/example_block.log
