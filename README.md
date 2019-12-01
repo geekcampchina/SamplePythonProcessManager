@@ -1,19 +1,51 @@
 # Sample Python Process Manager
 
-## 介绍
+一个简化进程管理的 `Python` 库
 
-由于爬虫系统需要部署在服务器, 长期运行, 所以需要使程序可以在后台运行, 并且退出终端等操作不会影响其运行。而使用简单的守护进程或者nohup的方式启动程序, 
-每次启动或者停止程序前都需要额外的操作, 无法达到进程管理的目的。为了达到进程管理的目的, 并且做到优雅的停止或重启进程, 所以创建了该库。本库操作方法简单, 只需要在使用本库后启动程序时添加[--start|--stop|--restart]参数, 就可以达到基本的进程管理的效果。
+***仅支持 Linux/Unix***
 
 ## 使用场景
-- 需要长时间驻留后台的程序
-- 需要进行进程管理的程序
-- 不建议使用于执行完毕会自动退出的程序。
+- 需要 `nohup` 运行
+- 需要驻留后台
+- 需要进程管理，比如 start/stop/restart
 
 ## 安装
-一般使用pip安装
+
 ```bash
 pip install sppm
+```
+
+## 用法
+
+    usage: sppm --no-daemon -d -v [--start|--stop|--reload|--shutdown|--restart|--status]
+
+    进程管理工具
+
+    optional arguments:
+    -h, --help     show this help message and exit
+    --no-daemon    不使用进程管理模式
+    -d, --debug    调试模式
+    --start        启动子进程
+    --stop         等待子进程正常退出
+    --reload       等待子进程正常退出，并启动新的子进程
+    --shutdown     强制杀掉子进程
+    --restart      强制杀掉子进程，并启动新的子进程
+    --status       显示子进程状态
+    -v, --version  显示版本信息
+
+
+## 使用
+
+```bash
+python examples/example.py -h
+```
+
+```bash
+SPPM_ENV=examples/.sppm_env python examples/example.py -h
+```
+
+```bash
+SPPM_ENV=examples/.sppm_env_block python examples/example_block.py -d --status
 ```
 
 ## 例子

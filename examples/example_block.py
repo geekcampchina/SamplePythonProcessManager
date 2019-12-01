@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sppm
 from time import sleep
 
 
@@ -36,4 +35,16 @@ def exit_callback(*args):
 
 
 if __name__ == "__main__":
+    try:
+        import sppm
+    except ModuleNotFoundError:
+        import sys
+        from pathlib import Path
+
+        # 解决直接从源代码（未安装sppm包）运行时，"import sppm" 无法导入问题
+        sppm_root_src = str(Path(__file__).absolute().parent.parent)
+        sys.path.insert(0, sppm_root_src)
+
+        import sppm
+
     sppm.sppm_start(foo)
