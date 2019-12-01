@@ -15,6 +15,7 @@ from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
 from sppm.signal_handler import sigint_handler, sigint_handler_exit
 from sppm.utils import cleanup
+from sppm.version import __version__
 
 exit_status = 0
 
@@ -118,7 +119,7 @@ def parser_cmd_options():
                         '--version',
                         help='显示版本信息',
                         action='version',
-                        version='%(prog)s v1.0.0')
+                        version='%(prog)s v' + __version__)
 
     args = parser.parse_args()
 
