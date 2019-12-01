@@ -9,7 +9,7 @@ import signal
 import sys
 from sppm.child import start_child
 from multiprocessing import Process
-
+from pathlib import Path
 from sppm.process_status import ProcessStatus
 from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
@@ -72,8 +72,8 @@ def action_status():
 
 
 def parser_cmd_options():
-    parser = argparse.ArgumentParser(prog='sppm',
-                                     description='进程管理工具',
+    parser = argparse.ArgumentParser(prog=Path(sys.argv[0]),
+                                     description='简化进程管理的命令行工具',
                                      usage='%(prog)s --no-daemon -d -v '
                                            '[--start|--stop|--reload|--shutdown|--restart|--status]')
 
