@@ -12,8 +12,9 @@ def foo():
     需要启动子进程的函数
     子进程任务foo，该任务中有阻塞执行的情况，需要利用文件锁通信，否则触发终止信号后需要等阻塞完之后才能退出
     """
-    exit_args = "foo"
+    exit_args = "arg_foo"
     n = 0
+
     while True:
         # 如果运行回调函数并返回True，则退出循环
         if sppm.signal_monitor(exit_callback, *exit_args):

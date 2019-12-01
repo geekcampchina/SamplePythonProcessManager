@@ -11,10 +11,11 @@ def foo():
     """
     子进程任务foo，该任务中没有阻塞执行的情况，不需要利用文件锁通信
     """
-    exit_args = "foo"
+    exit_args = "arg_foo"
     n = 0
+
     while True:
-        logger.info('Run %d time(s) task->%s.' % (n, "bar"))
+        logger.info('Run %d time(s) task->%s.' % (n, "foo"))
         n += 1
 
         # 如果运行回调函数并返回True，则退出循环
