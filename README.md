@@ -1,13 +1,16 @@
 # Sample Python Process Manager
 
-一个简化进程管理的 `Python` 库
+一个简化进程管理的 `Python` 库，丰富的命令行控制参数满足各种运行需求
 
 ***仅支持 Linux/Unix***
 
 ## 使用场景
-- 需要 `nohup` 运行
+- 需要不影响业务（一致性）的情况下管理进程，比如 stop/reload/restart
+- 需要 `nohup`、`screen` 等运行
 - 需要驻留后台
-- 需要进程管理，比如 start/stop/restart
+
+## 特点
+__极少代码侵入，即可达到优雅的停止、重载（重启），不需要 `kill -9` 强制杀死进程，不影响业务数据处理或写入。__
 
 ## 安装
 
@@ -17,244 +20,117 @@ pip install sppm
 
 ## 用法
 
-    usage: sppm --no-daemon -d -v [--start|--stop|--reload|--shutdown|--restart|--status]
+    usage: examples/example.py --no-daemon -d -v -l [--start|--stop|--reload|--shutdown|--restart|--status]
 
-    进程管理工具
+    简化进程管理的命令行工具
 
     optional arguments:
-    -h, --help     show this help message and exit
-    --no-daemon    不使用进程管理模式
-    -d, --debug    调试模式
-    --start        启动子进程
-    --stop         等待子进程正常退出
-    --reload       等待子进程正常退出，并启动新的子进程
-    --shutdown     强制杀掉子进程
-    --restart      强制杀掉子进程，并启动新的子进程
-    --status       显示子进程状态
-    -v, --version  显示版本信息
-
+    -h, --help            show this help message and exit
+    --no-daemon           不使用进程管理模式
+    -l {0,1,2,3,4,5}, --log-level {0,1,2,3,4,5}
+                          日志级别，CRITICAL|ERROR|WARNING|INFO|DEBUG|TRACE，默认等级3（INFO）
+    --start               启动子进程
+    --stop                等待子进程正常退出
+    --reload              等待子进程正常退出，并启动新的子进程
+    --shutdown            强制杀掉子进程
+    --restart             强制杀掉子进程，并启动新的子进程
+    --status              显示子进程状态
+    -v, --version         显示版本信息
 
 ## 使用
 
-```bash
-python examples/example.py -h
-```
+### 代码
 
-```bash
-SPPM_ENV=examples/.sppm_env python examples/example.py -h
-```
-
-```bash
-SPPM_ENV=examples/.sppm_env_block python examples/example_block.py -d --status
-```
-
-## 例子
-
-#### 文件锁模式
-假设原有一个程序`example.py`:
-```python
-from time import sleep
-
-
-def foo():
-    n = 0
-    while True:
-        print('Run %d time(s) task->%s.' % (n, "foo"))
-        n += 1
-        # 模拟任务执行需要两秒
-        sleep(2)
-
-
-    if __name__ == "__main__":
-        foo()
-```
-
-现在需要使用`sppm`管理进程
-
-导入`sppm`
 ```python
 import sppm
+
+sppm.sppm_start(foo)
 ```
 
-使用[sppm_start](#sppm-start)将启动函数传递给`sppm`, 指定任务名称为`foo`
-```python
-sppm.sppm_start("foo", foo)
-```
+更多细节，请查看 `examples/example.py` 以及 `examples/example_working_lock.py`
 
-至此已经可以采用`sppm`的方式启动程序, 为了能够使用`sppm`停止和重启程序, 需要在每次任务处理完时使用[signal_monitor](#signal-monitor)判断是否需要退出
-```python
-if sppm.signal_monitor():
-        break
-```
+### 管理
 
-修改完成后, 代码如下:
-```python
-from time import sleep
-import sppm
+更多使用方法，请执行 `python3 examples/example.py -h` 查看帮助信息。
 
-
-def foo():
-
-    n = 0
-    while True:
-        print('Run %d time(s) task->%s.' % (n, "foo"))
-        n += 1
-        # 模拟任务执行需要两秒
-        sleep(2)
-        if sppm.signal_monitor():
-            break
-
-
-if __name__ == "__main__":
-    sppm.sppm_start(foo)
-```
-
-#### 阻塞模式
-除了以上方法, 还有一种启动方法阻塞情况下利用文件锁通信, 父进程根据文件锁判断子进程状态，是否可以关闭。
-
-假设原有一个程序`example_block.py`:
-```python
-from time import sleep
-
-
-def bar():
-    n = 0
-    while True:
-        print('Run %d time(s) task->%s.' % (n, "bar"))
-        n += 1
-        # 模拟任务执行需要两秒
-        sleep(2)
-
-
-    if __name__ == "__main__":
-        bar()
-```
-
-使用方式
-
-导入`sppm`
-```python
-import sppm
-```
-
-使用[sppm_block_start](#sppm-block-start)将启动函数传递给`sppm`, 指定任务名称为`bar`
-```python
-sppm.sppm_block_start(bar)
-```
-
-使用[lock](#lock)执行任务前添加文件锁
-```python
-    sppm.lock()
-```
-
-使用[signal_monitor](#signal-monitor)判断是否需要退出
-```python
-if sppm.signal_monitor():
-        break
-```
-
-修改完成后, 代码如下:
-```python
-from time import sleep
-import sppm
-
-
-def bar():
-    n = 0
-    while True:
-        sppm.lock()
-        print('Run %d time(s) task->%s.' % (n, "bar"))
-        n += 1
-        # 模拟任务执行需要两秒
-        sleep(2)
-        if sppm.signal_monitor():
-            break
-
-
-if __name__ == "__main__":
-    sppm.sppm_block_start(bar)
-```
-#### 启动方式
-终端进入`foo.py`所在文件夹  
-
-参数说明
->-h或者--help查看参数帮助  
->[--start|--stop|--restart]执行文件时必须选择其中一个参数  
->--no-daemon参数代表后台执行, 不显示执行过程的输出结果, 对--restart参数也有效  
->--debug参数代表后台执行, 显示执行过程的输出结果, 对--restart参数也有效  
-
-
-启动程序
+#### 启动
 ```bash
-python example.py --start
+python3 examples/example.py --start
 ```
 
-启动程序, 不使用后台执行
+    2019-12-01 17:45:07 15048 [INFO] **** 按Ctrl+C可以终止运行 ****
+    2019-12-01 17:45:07 15049 [INFO] Run 0 time(s) task->foo.
+    2019-12-01 17:45:17 15049 [INFO] Run 1 time(s) task->foo.
+    2019-12-01 17:45:27 15049 [INFO] Run 2 time(s) task->foo.
+    2019-12-01 17:45:37 15049 [INFO] Run 3 time(s) task->foo.
+    ^C2019-12-01 17:45:47 15049 [INFO] Run 4 time(s) task->foo.
+    执行exit_callback函数
+
+
+指定日志等级：
+
 ```bash
-python example.py --start --no-daemon
+python3 examples/example.py --start -l 5
 ```
 
-启动程序, 使用后台执行, 但显示输出结果
+#### 查看状态
 ```bash
-python example.py --start --debug
+python3 examples/example.py --status
 ```
 
-停止程序
+    pid                  : 16728
+    ppid                 : 16727
+    alive                : true
+    uptime               : 152 second(s)
+    human readable uptime: 2 minute(s), 32 second(s)
+    create time          : 2019-12-01 18:32:30.300000
+    active               : false
+    last active time     : 2019-12-01 18:32:30.696024
+
+
+#### 停止
 ```bash
-python example.py --stop
+python3 examples/example.py --stop
 ```
 
-重启程序
+### 运行多个程序
+
 ```bash
-python example.py --restart
+python3 examples/example.py --start
+
+SPPM_ENV=examples/.sppm_env_working_lock python examples/example_working_lock.py --start
 ```
 
-#### 使用说明
+    $ python3 examples/example.py --status
+    pid                  : 17404
+    ppid                 : 17403
+    alive                : true
+    uptime               : 48 second(s)
+    human readable uptime: 48 second(s)
+    create time          : 2019-12-01 18:49:47.880000
+    active               : false
+    last active time     : 2019-12-01 18:49:48.273476
 
-<span id="sppm-start"></span>
->`sppm_start(task_name, child_callback=None, *child_args)`  
->>将原启动函数传递给`sppm`, 这种启动方式不需要利用文件通信, 另一种启动方式[sppm_block_start](#sppm-block-start)需要利用文件锁通信
->>>参数:
->>> - task_name(_str_) - 启动的任务名称, 必需的
->>> - child_callback(_callable, optional_) - 原启动函数, 默认为`None`
->>> - child_args(_any, optional_) - foo的参数, 数量可变
 
-<span id="sppm-block-start"></span>
->`sppm_block_start(task_name, child_callback=None, *child_args)`  
->>将原启动函数传递给`sppm`, 这种启动方式利用文件通信, 另一种启动方式[sppm_start](#sppm-start)不需要利用文件锁通信。  
->>这种启动方式通过读取文件锁, 判断子进程工作状态以及是否陷入忙等待, 使用这种方式启动还需要使用`lock`函数指定文件锁位置以及修改子程序状态
->>>参数:
->>> - task_name(_str_) - 启动的任务名称, 必需的
->>> - child_callback(_callable, optional_) - 原启动函数, 默认为`None`
->>> - child_args(_any, optional_) - foo的参数, 数量可变
+    $ SPPM_ENV=examples/.sppm_env_working_lock python examples/example_working_lock.py --status
+    pid                  : 17397
+    ppid                 : 17396
+    alive                : true
+    uptime               : 40 second(s)
+    human readable uptime: 40 second(s)
+    create time          : 2019-12-01 18:49:25.690000
+    active               : true
+    last active time     : 2019-12-01 18:50:06.127305
 
-<span id="signal-monitor"></span>
->`signal_monitor(exit_callback=None, *exit_args)`
->>任务处理完成后是否需要退出。  
->>为了达到优雅退出的目的, 需要将退出操作告知`sppm`，由`sppm`关闭程序前代为执行,比如一些关闭文件句柄的操作、删除中间文件的操作。
->>>参数:
->>> - exit_callback(_callable, optional_) - 退出函数时的处理函数, 默认值`None`不作任何处理
->>> - args(_any, optional_) - exit_callback的参数, 数量可变
 
->>>返回值:is_exit  
->>>返回类型:bool  
->>>`True`代表程序收到了退出信号, 已经执行`exit_callback`,`False`代表没有收到退出信号
+### 配置文件
 
-<span id="lock"></span>
->`lock(is_working=False)`
->>标记文件锁  
->>使用该函数, sppm会在指定的文件位置创建一个lock文件, 写入子进程pid、写入时间、工作状态, sppm会根据写入时间以及工作状态来判断能否终止进程。防止进程在工作状态被错误停止, 优雅终止进程。 
->>>参数:
->>> - is_working(_bool, optional_) - 进程工作状态, `True`代表正在进行业务处理中 `False`代表未进行业务处理, 为`True`时sppm不会杀死进程, 直到被修改为`False`, 默认为`False`
+默认情况下，程序自动从环境变量 `SPPM_ENV` 加载 `Python` 文件目录下的 `.sppm_env`。
 
-## 补充
+    $ cat examples/.sppm_env
+    pid=/tmp/example.pid
+    child_pid=/tmp/example_child.pid
+    lock=/tmp/example.lock
+    log=/tmp/example.log
 
-1.  示例中[文件锁模式](#文件锁模式) 完整代码可以在`examples/example.py`查看
-2.  示例中[阻塞模式](#阻塞模式) 完整代码可以在`examples/example_block.py`查看
-
-## 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+运行多个程序时，每个程序必须单独配置环境变量 `SPPM_ENV` 指向不同的配置文件。
