@@ -16,7 +16,8 @@ DEFAULT_CONFIG_FILENAME = '.sppm_env'
 CONFIG_KEYS = [
     'pid',
     'child_pid',
-    'lock'
+    'lock',
+    'log'
 ]
 
 
@@ -27,6 +28,7 @@ class SppmConfig:
         self.lock_file = ''
         self.configs = {}
         self.env_file_path = ''
+        self.log_file = ''
 
         self.load_env()
         self.check_env()
@@ -90,6 +92,7 @@ class SppmConfig:
         self.pid_file = self.configs['pid']
         self.child_pid_file = self.configs['child_pid']
         self.lock_file = self.configs['lock']
+        self.log_file = self.configs['log']
 
     @staticmethod
     def get_instance():

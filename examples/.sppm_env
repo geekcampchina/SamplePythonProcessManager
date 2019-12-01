@@ -1,3 +1,4 @@
 pid=/tmp/exmaple.pid
 child_pid=/tmp/exmaple_child.pid
 lock=/tmp/exmaple.lock
+log=/tmp/exmaple.log

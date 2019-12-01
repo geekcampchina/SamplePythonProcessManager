@@ -10,6 +10,8 @@ import sys
 from sppm.child import start_child
 from multiprocessing import Process
 from pathlib import Path
+
+from sppm.log_level import LogLevel, LOG_LEVEL_NAMES
 from sppm.process_status import ProcessStatus
 from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
@@ -83,11 +85,13 @@ def parser_cmd_options():
                         required=False,
                         action='store_true')
 
-    parser.add_argument('-d',
-                        '--debug',
-                        help='调试模式',
-                        required=False,
-                        action='store_true')
+    parser.add_argument('-l',
+                        '--log-level',
+                        help='日志级别，CRITICAL|ERROR|WARNING|INFO|DEBUG|TRACE，默认等级3（INFO）',
+                        type=int,
+                        choices=LogLevel.get_list(),
+                        default=LogLevel.INFO.value,
+                        required=False)
 
     # 定义互斥组，组中至少有一个参数是必须的:
     action_group = parser.add_mutually_exclusive_group(required=True)
@@ -159,6 +163,21 @@ def process_manager(cmd_args, child_callback, *child_args):
             exit_status = 1
 
 
+def load_log_config(log_level: int):
+    log_file = Path(SPPM_CONFIG.log_file)
+
+    # 递归创建日志目录
+    if not log_file.parent.exists():
+        log_file.mkdir(parents=True)
+
+    logger = logging.getLogger()
+    file_handler = logging.FileHandler(str(log_file))
+    formatter = logging.Formatter('%(asctime)s %(process)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logging.getLogger().setLevel(LOG_LEVEL_NAMES[log_level])
+
+
 def sppm_start(child_callback, *child_args):
     try:
         cmd_args = parser_cmd_options()
@@ -169,6 +188,8 @@ def sppm_start(child_callback, *child_args):
         elif cmd_args.stop or cmd_args.shutdown:
             signal.signal(signal.SIGINT, sigint_handler_exit)
 
+        load_log_config(cmd_args.log_level)
+
         # 一些动作不需要守护进程执行
         if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown or cmd_args.status:
             process_manager(cmd_args, child_callback, *child_args)
@@ -178,7 +199,7 @@ def sppm_start(child_callback, *child_args):
             for log_handler in logging.getLogger().handlers:
                 log_file_descriptors.append(log_handler.stream)
 
-            if cmd_args.debug:
+            if cmd_args.log_level >= LogLevel.DEBUG:
                 with daemon.DaemonContext(files_preserve=log_file_descriptors,
                                           working_directory=os.getcwd(),
                                           stdout=sys.stdout,

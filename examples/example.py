@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import logging
 from time import sleep
+
+logger = logging.getLogger()
 
 
 def foo():
@@ -11,12 +14,12 @@ def foo():
     exit_args = "foo"
     n = 0
     while True:
-        print('Run %d time(s) task->%s.' % (n, "bar"))
+        logger.info('Run %d time(s) task->%s.' % (n, "bar"))
         n += 1
 
         # 如果运行回调函数并返回True，则退出循环
         if sppm.signal_monitor(exit_callback, *exit_args):
-            print('任务回调函数返回True，退出......')
+            logger.info('任务回调函数返回True，退出......')
             break
         # 模拟任务执行需要十秒
         sleep(10)
