@@ -1,0 +1,4 @@
+pid=/tmp/example_working_lock.pid
+child_pid=/tmp/example_working_lock_child.pid
+lock=/tmp/example_working_lock.lock
+log=/tmp/example_working_lock.log
