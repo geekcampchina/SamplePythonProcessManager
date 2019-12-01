@@ -199,7 +199,7 @@ def sppm_start(child_callback, *child_args):
             for log_handler in logging.getLogger().handlers:
                 log_file_descriptors.append(log_handler.stream)
 
-            if cmd_args.log_level >= LogLevel.DEBUG:
+            if cmd_args.log_level >= LogLevel.DEBUG.value:
                 with daemon.DaemonContext(files_preserve=log_file_descriptors,
                                           working_directory=os.getcwd(),
                                           stdout=sys.stdout,
