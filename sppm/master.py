@@ -44,6 +44,9 @@ def action_stop(child_pid):
     os.kill(child_pid, signal.SIGTERM)
     ProcessStatusLock.wait_unlock(SPPM_CONFIG.lock_file)
 
+    if SPPM_CONFIG.enable_timeout:
+        action_shutdown(child_pid)
+
 
 def action_reload(child_pid, is_no_daemon, child_callback, *child_args):
     action_stop(child_pid)
@@ -166,10 +169,6 @@ def process_manager(cmd_args, child_callback, *child_args):
 def load_log_config(log_level: int):
     log_file = Path(SPPM_CONFIG.log_file)
 
-    # # 递归创建日志目录
-    # if not log_file.parent.exists():
-    #     log_file.mkdir(parents=True)
-
     logger = logging.getLogger()
     file_handler = logging.FileHandler(str(log_file))
     formatter = logging.Formatter('%(asctime)s %(process)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
@@ -199,16 +198,8 @@ def sppm_start(child_callback, *child_args):
             for log_handler in logging.getLogger().handlers:
                 log_file_descriptors.append(log_handler.stream)
 
-            if cmd_args.log_level >= LogLevel.DEBUG.value:
-                with daemon.DaemonContext(files_preserve=log_file_descriptors,
-                                          working_directory=os.getcwd(),
-                                          stdout=sys.stdout,
-                                          stderr=sys.stderr):
-                    process_manager(cmd_args, child_callback, *child_args)
-            else:
-                with daemon.DaemonContext(files_preserve=log_file_descriptors,
-                                          working_directory=os.getcwd()):
-                    process_manager(cmd_args, child_callback, *child_args)
+            with daemon.DaemonContext(files_preserve=log_file_descriptors, working_directory=os.getcwd()):
+                process_manager(cmd_args, child_callback, *child_args)
     except Exception as e:
         # 使用异常防止PID被删除两次的问题
         cleanup()
