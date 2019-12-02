@@ -116,5 +116,5 @@ class ProcessStatusLock:
         return result
 
 
-def working_lock():
-    ProcessStatusLock.lock(os.getpid(), SPPM_CONFIG.lock_file, True)
+def working_lock(is_active: bool):
+    ProcessStatusLock.lock(os.getpid(), SPPM_CONFIG.lock_file, is_active)
