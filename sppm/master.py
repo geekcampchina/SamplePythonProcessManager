@@ -89,11 +89,11 @@ def process_manager(cmd_args, child_callback, *child_args):
             elif cmd_args.stop:
                 action_stop(child_pid)
             elif cmd_args.reload:
-                action_reload(child_pid, cmd_args.no_daemon, child_callback, *child_args)
+                action_reload(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args)
             elif cmd_args.shutdown:
                 action_shutdown(child_pid)
             elif cmd_args.restart:
-                action_restart(child_pid, cmd_args.no_daemon, child_callback, *child_args)
+                action_restart(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args)
             elif cmd_args.status:
                 action_status()
             else:

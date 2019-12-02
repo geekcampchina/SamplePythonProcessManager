@@ -36,9 +36,9 @@ def action_stop(child_pid):
         action_shutdown(child_pid)
 
 
-def action_reload(child_pid, is_no_daemon, child_callback, *child_args):
+def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *child_args):
     action_stop(child_pid)
-    action_start(is_no_daemon, child_callback, *child_args)
+    action_start(is_no_daemon, target_callback, child_callback, *child_args)
 
 
 def action_shutdown(child_pid):
@@ -55,9 +55,9 @@ def action_shutdown(child_pid):
     cleanup()
 
 
-def action_restart(child_pid, is_no_daemon, child_callback, *child_args):
+def action_restart(child_pid, target_callback, is_no_daemon, child_callback, *child_args):
     action_shutdown(child_pid)
-    action_start(is_no_daemon, child_callback, *child_args)
+    action_start(is_no_daemon, target_callback, child_callback, *child_args)
 
 
 def action_status():
