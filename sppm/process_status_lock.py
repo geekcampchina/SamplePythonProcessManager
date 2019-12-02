@@ -20,29 +20,50 @@ class ProcessStatusLock:
             return int(f.readline())
 
     @staticmethod
+    def wait_unlock_by_child(lock_file):
+        n = 0
+
+        while True:
+            hlog.debug('从资源文件获取子进程状态，检测子进程是否空闲或退出......：%s' % lock_file)
+
+            if SPPM_CONFIG.enable_timeout and n >= SPPM_CONFIG.timeout:
+                hlog.debug('等待子进程退出超时')
+                break
+
+            if not ProcessStatusLock.is_working(lock_file) and ProcessStatusLock.is_idle(lock_file):
+                hlog.debug('子进程空闲或已经退出')
+                break
+
+            n += 1
+            sleep(1)
+
+    @staticmethod
+    def wait_unlock_by_file(lock_file):
+        n = 0
+
+        while True:
+            hlog.debug('等待释放文件锁：%s' % lock_file)
+
+            if SPPM_CONFIG.enable_timeout and n >= SPPM_CONFIG.timeout:
+                hlog.debug('等待释放文件锁超时')
+                break
+
+            if not os.path.exists(lock_file):
+                hlog.debug('文件锁：%s 已经释放' % lock_file)
+                break
+
+            n += 1
+            sleep(1)
+
+    @staticmethod
     def wait_unlock(lock_file):
         """
         等待子进程释放文件锁
         :return:
         """
         try:
-            while True:
-                hlog.debug('从资源文件获取子进程状态，检测子进程是否空闲或退出......：%s' % lock_file)
-
-                if not ProcessStatusLock.is_working(lock_file) and ProcessStatusLock.is_idle(lock_file):
-                    hlog.debug('子进程空闲或已经退出')
-                    break
-
-                sleep(1)
-
-            while True:
-                hlog.debug('等待释放文件锁：%s' % lock_file)
-
-                if not os.path.exists(lock_file):
-                    hlog.debug('文件锁：%s 已经释放' % lock_file)
-                    break
-
-                sleep(1)
+            ProcessStatusLock.wait_unlock_by_child(lock_file)
+            ProcessStatusLock.wait_unlock_by_file(lock_file)
         except Exception as e:
             del e
             hlog.info('子进程已经退出')

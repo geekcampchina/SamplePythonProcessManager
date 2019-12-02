@@ -2,3 +2,4 @@ pid=/tmp/example.pid
 child_pid=/tmp/example_child.pid
 lock=/tmp/example.lock
 log=/tmp/example.log
+timeout=0

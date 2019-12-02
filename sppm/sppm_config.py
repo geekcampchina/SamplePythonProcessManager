@@ -17,7 +17,8 @@ CONFIG_KEYS = [
     'pid',
     'child_pid',
     'lock',
-    'log'
+    'log',
+    'timeout'
 ]
 
 
@@ -29,6 +30,8 @@ class SppmConfig:
         self.configs = {}
         self.env_file_path = ''
         self.log_file = ''
+        self.timeout = 0
+        self.enable_timeout = False
 
         self.load_env()
         self.check_env()
@@ -76,8 +79,15 @@ class SppmConfig:
                 key = line[:index]
                 value = line[index + len(sep):]
 
-                if not os.path.isabs(value):
-                    raise ValueError('仅支持绝对路径：%s' % value)
+                if key == 'timeout':
+                    # 如果value不是整数，会抛出异常提示用户
+                    timeout = int(value)
+
+                    if timeout < 0:
+                        raise ValueError('参数 timeout 的值不能小于 0' % value)
+                else:
+                    if not os.path.isabs(value):
+                        raise ValueError('仅支持绝对路径：%s' % value)
 
                 self.configs[key] = value
 
@@ -94,6 +104,8 @@ class SppmConfig:
         self.child_pid_file = self.configs['child_pid']
         self.lock_file = self.configs['lock']
         self.log_file = self.configs['log']
+        self.timeout = int(self.configs['timeout'])
+        self.enable_timeout = self.timeout > 0
 
     def mkdirs(self):
         """
