@@ -167,8 +167,9 @@ def load_log_config(log_level: int):
     log_file = Path(SPPM_CONFIG.log_file)
 
     # 递归创建日志目录
-    if not log_file.parent.exists():
-        log_file.mkdir(parents=True)
+    parent = log_file.parent
+    if not parent.exists():
+        parent.mkdir(parents=True)
 
     logger = logging.getLogger()
     file_handler = logging.FileHandler(str(log_file))
