@@ -21,14 +21,17 @@ def foo():
             logger.info('任务回调函数返回True，退出......')
             break
 
-        # 需要阻塞等待前上锁
-        sppm.working_lock()
+        # 锁定工作状态
+        sppm.working_lock(True)
 
         logger.info('Run %d time(s) task->%s.' % (n, "foo"))
         n += 1
 
         # 模拟任务执行需要十秒
         sleep(10)
+
+        # 解锁工作状态
+        sppm.working_lock(False)
 
 
 def exit_callback(*args):
