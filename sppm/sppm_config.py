@@ -34,6 +34,7 @@ class SppmConfig:
         self.check_env()
         self.read_cfg()
         self.set_class_attrs()
+        self.mkdirs()
 
     def load_env(self):
         if ENV_VAR_NAME not in os.environ:
@@ -93,6 +94,24 @@ class SppmConfig:
         self.child_pid_file = self.configs['child_pid']
         self.lock_file = self.configs['lock']
         self.log_file = self.configs['log']
+
+    def mkdirs(self):
+        """
+        创建配置文件传入的文件夹
+        :return:
+        """
+        file_list = [
+            self.pid_file,
+            self.child_pid_file,
+            self.lock_file,
+            self.log_file
+        ]
+
+        for file in file_list:
+            file_path = Path(file)
+            # 递归创建文件夹
+            if not file_path.parent.exists():
+                file_path.parent.mkdir(parents=True)
 
     @staticmethod
     def get_instance():
