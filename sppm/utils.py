@@ -27,7 +27,7 @@ def cleanup():
 def signal_monitor(exit_callback=None, *args):
     hlog.debug('signal_monitor......')
 
-    if signals[signal.SIGINT] or signals[signal.SIGTERM]:
+    if signals[signal.SIGTERM]:
         hlog.debug('收到终止信号，准备退出......')
 
         if exit_callback:
