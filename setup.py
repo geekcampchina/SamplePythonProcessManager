@@ -10,7 +10,7 @@
 
 from os.path import join, dirname
 
-from happy_python.version import __version__
+from sppm.version import __version__
 from setuptools import setup
 
 with open(join(dirname(__file__), 'sppm/version.py'), 'r', encoding='utf-8') as f:
