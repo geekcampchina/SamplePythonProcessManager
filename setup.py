@@ -9,16 +9,13 @@
 """
 
 from os.path import join, dirname
-
-from sppm.version import __version__
 from setuptools import setup
 
-with open(join(dirname(__file__), 'sppm/version.py'), 'r', encoding='utf-8') as f:
-    exec(f.read())
+with open(join(dirname(__file__), 'sppm/version.txt'), 'r', encoding='utf-8') as f:
+    __version__ = f.read().strip()
 
 with open(join(dirname(__file__), 'requirements.txt'), 'r', encoding='utf-8') as f:
     pkgs = f.read()
-    print('pkgs', pkgs)
     install_requires = pkgs.split("\n")
 
 setup(
