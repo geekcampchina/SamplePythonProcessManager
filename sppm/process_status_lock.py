@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import os
+from datetime import datetime
 from time import sleep
+
 from sppm.settings import hlog, SPPM_CONFIG
 
 
@@ -61,11 +62,11 @@ class ProcessStatusLock:
         等待子进程释放文件锁
         :return:
         """
+        # noinspection PyBroadException
         try:
             ProcessStatusLock.wait_unlock_by_child(lock_file)
             ProcessStatusLock.wait_unlock_by_file(lock_file)
-        except Exception as e:
-            del e
+        except Exception:
             hlog.info('子进程已经退出')
 
     @staticmethod

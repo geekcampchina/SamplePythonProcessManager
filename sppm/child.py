@@ -3,11 +3,13 @@
 
 import inspect
 import signal
+
+from sppm.settings import hlog
 from sppm.signal_handler import sigterm_handler
 from sppm.utils import cleanup
-from sppm.settings import hlog
 
 
+# noinspection PyUnusedLocal
 def sigint_skip_handler(sig, frame):
     pass
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 from datetime import datetime
 
 import psutil
@@ -71,4 +72,4 @@ class ProcessStatus:
                    self.create_time.strftime('%F %T.%f'),
                    str(self.active).lower(),
                    self.last_active_time.strftime('%F %T.%f')
-                  )
+               )

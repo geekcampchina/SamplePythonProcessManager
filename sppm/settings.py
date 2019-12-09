@@ -3,7 +3,9 @@
 
 import signal
 from pathlib import PurePath
+
 from happy_python import HappyLog
+
 from sppm.sppm_config import SppmConfig
 
 CONFIG_DIR = PurePath(__file__).parents[1] / 'conf'

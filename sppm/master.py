@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import daemon
 import logging
 import os
 import signal
 import sys
 from pathlib import Path
+
+import daemon
+
 from sppm.child import start_child
 from sppm.cmd_action import action_stop, action_reload, action_shutdown, action_restart, action_status, action_start
 from sppm.log_level import LogLevel, LOG_LEVEL_NAMES
@@ -136,6 +138,7 @@ def sppm_start(child_callback, *child_args):
         else:
             log_file_descriptors = []
 
+            log_handler: logging.StreamHandler
             for log_handler in logging.getLogger().handlers:
                 log_file_descriptors.append(log_handler.stream)
 

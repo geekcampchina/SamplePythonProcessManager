@@ -4,6 +4,7 @@
 import os
 import signal
 from multiprocessing import Process
+
 from sppm.process_status import ProcessStatus
 from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
@@ -45,10 +46,10 @@ def action_shutdown(child_pid):
     os.kill(child_pid, signal.SIGTERM)
     hlog.info('当前处于强杀模式下，子进程 %d 将被强制杀死......' % child_pid)
 
+    # noinspection PyBroadException
     try:
         os.kill(child_pid, signal.SIGKILL)
-    except Exception as e:
-        del e
+    except Exception:
         hlog.info('子进程已经退出')
 
     # 强杀模式，子进程无法自己释放资源文件，需要父进程手动释放

@@ -3,6 +3,7 @@
 
 import os
 import signal
+
 from sppm.settings import hlog, signals, SPPM_CONFIG
 
 

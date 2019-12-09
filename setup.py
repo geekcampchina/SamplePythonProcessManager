@@ -8,9 +8,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from setuptools import setup
 from os.path import join, dirname
+
 from happy_python.version import __version__
+from setuptools import setup
 
 with open(join(dirname(__file__), 'sppm/version.py'), 'r', encoding='utf-8') as f:
     exec(f.read())
