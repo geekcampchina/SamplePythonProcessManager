@@ -48,11 +48,11 @@ def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *chi
 
 
 def action_shutdown(child_pid):
-    os.kill(child_pid, signal.SIGTERM)
-    hlog.info('当前处于强杀模式下，子进程 %d 将被强制杀死......' % child_pid)
-
     # noinspection PyBroadException
     try:
+        os.kill(child_pid, signal.SIGTERM)
+        hlog.info('当前处于强杀模式下，子进程 %d 将被强制杀死......' % child_pid)
+
         os.kill(child_pid, signal.SIGKILL)
     except Exception:
         hlog.info('子进程已经退出')
