@@ -30,14 +30,16 @@ def action_start(is_no_daemon, target_callback, child_callback, *child_args):
 
 
 def action_stop(child_pid):
+    # noinspection PyBroadException
     try:
         os.kill(child_pid, signal.SIGTERM)
-        ProcessStatusLock.wait_unlock(SPPM_CONFIG.lock_file)
-
-        if SPPM_CONFIG.enable_timeout:
-            action_shutdown(child_pid)
-    except Exception:
+    except ProcessLookupError:
         cleanup()
+
+    ProcessStatusLock.wait_unlock(SPPM_CONFIG.lock_file)
+
+    if SPPM_CONFIG.enable_timeout:
+        action_shutdown(child_pid)
 
 
 def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *child_args):
