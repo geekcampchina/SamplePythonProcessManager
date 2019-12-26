@@ -31,7 +31,7 @@ setup(
     packages=['sppm'],
     zip_safe=False,
     include_package_data=True,
-    platforms='any',
+    platforms='Linux',
     install_requires=install_requires,
     classifiers=[
         'Intended Audience :: Developers',
