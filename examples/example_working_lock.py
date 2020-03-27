@@ -55,4 +55,4 @@ if __name__ == "__main__":
 
         import sppm
 
-    sppm.sppm_start(foo)
+    sppm.sppm_start(foo, '使用文件锁的子进程示例')

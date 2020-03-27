@@ -29,9 +29,9 @@ def get_version():
         return __version__
 
 
-def parser_cmd_options():
+def parser_cmd_options(child_help_desc):
     parser = argparse.ArgumentParser(prog=Path(sys.argv[0]),
-                                     description='简化进程管理的命令行工具',
+                                     description=child_help_desc,
                                      usage='%(prog)s --no-daemon -d -v -l'
                                            '[--start|--stop|--reload|--shutdown|--restart|--status]')
 
@@ -129,9 +129,16 @@ def load_log_config(log_level: int):
     logging.getLogger().setLevel(LOG_LEVEL_NAMES[log_level])
 
 
-def sppm_start(child_callback, *child_args):
+def sppm_start(child_callback, child_help_desc, *child_args):
+    """
+    sppm启动方法
+    @param child_callback: 子进程启动函数
+    @param child_help_desc: 子进程描述，用于显示自定义帮助信息
+    @param child_args: 子进程启动函数的参数
+    @return:
+    """
     try:
-        cmd_args = parser_cmd_options()
+        cmd_args = parser_cmd_options(child_help_desc)
 
         if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown or cmd_args.reload or cmd_args.restart:
             # 前台运行收到 CTRL+C 信号，直接回调，然后退出。

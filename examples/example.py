@@ -31,7 +31,7 @@ def exit_callback(*args):
     """
     退出进程时的回调，用于提供给sppm.signal_monitor，不提供则默认不作处理直接关闭子进程
     """
-    print("执行exit_callback函数")
+    logger.info("执行exit_callback函数")
 
 
 if __name__ == "__main__":
@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
         import sppm
 
-    sppm.sppm_start(foo)
+    sppm.sppm_start(foo, '子进程示例')
