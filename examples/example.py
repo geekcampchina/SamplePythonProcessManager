@@ -29,7 +29,7 @@ def foo():
 # noinspection PyUnusedLocal
 def exit_callback(*args):
     """
-    推出进程时的回调，用于提供给sppm.signal_monitor，不提供则默认不作处理直接关闭子进程
+    退出进程时的回调，用于提供给sppm.signal_monitor，不提供则默认不作处理直接关闭子进程
     """
     print("执行exit_callback函数")
 
