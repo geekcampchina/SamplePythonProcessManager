@@ -9,6 +9,9 @@ import os
 import sys
 from pathlib import Path
 
+from happy_python import HappyLog
+
+
 _SppmConfigSingletonObj = None
 ENV_VAR_NAME = 'SPPM_ENV'
 DEFAULT_CONFIG_FILENAME = '.sppm_env'
@@ -61,6 +64,9 @@ class SppmConfig:
         读取配置文件内容
         :return:
         """
+        hlog = HappyLog.get_instance()
+        hlog.info('加载SPPM配置文件：%s' % self.env_file_path)
+
         with open(self.env_file_path, 'r') as f:
             lines = f.readlines()
 
