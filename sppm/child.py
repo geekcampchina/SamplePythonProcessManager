@@ -14,7 +14,7 @@ def sigint_skip_handler(sig, frame):
     pass
 
 
-def start_child(task_callback, *args):
+def start_child(task_callback, *args, **kwargs):
     func_name = inspect.stack()[0][3]
     hlog.enter_func(func_name)
 
@@ -24,7 +24,7 @@ def start_child(task_callback, *args):
     signal.signal(signal.SIGINT, sigint_skip_handler)
 
     try:
-        task_callback(*args)
+        task_callback(*args, **kwargs)
     except Exception as e:
         hlog.error(e)
     finally:
