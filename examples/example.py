@@ -7,12 +7,14 @@ from time import sleep
 logger = logging.getLogger()
 
 
-def foo():
+def foo(*args, **kwargs):
     """
     子进程任务foo，该任务中没有阻塞执行的情况，不需要利用文件锁通信
     """
     exit_args = "arg_foo"
     n = 0
+    logger.debug(args)
+    logger.debug(kwargs)
 
     while True:
         logger.info('Run %d time(s) task->%s.' % (n, "foo"))
@@ -47,4 +49,4 @@ if __name__ == "__main__":
 
         import sppm
 
-    sppm.sppm_start(foo, '子进程示例')
+    sppm.sppm_start(foo, '子进程示例', 1, 2, a=1)

@@ -85,7 +85,7 @@ def parser_cmd_options(child_help_desc):
     return args
 
 
-def process_manager(cmd_args, child_callback, *child_args):
+def process_manager(cmd_args, child_callback, *child_args, **child_kwargs):
     global exit_status
 
     if os.path.exists(SPPM_CONFIG.pid_file):
@@ -98,7 +98,7 @@ def process_manager(cmd_args, child_callback, *child_args):
             elif cmd_args.stop:
                 action_stop(child_pid)
             elif cmd_args.reload:
-                action_reload(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args)
+                action_reload(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args, **child_kwargs)
             elif cmd_args.shutdown:
                 action_shutdown(child_pid)
             elif cmd_args.restart:
@@ -112,7 +112,7 @@ def process_manager(cmd_args, child_callback, *child_args):
             exit_status = 1
     else:
         if cmd_args.start:
-            action_start(cmd_args.no_daemon, start_child, child_callback, *child_args)
+            action_start(cmd_args.no_daemon, start_child, child_callback, *child_args, **child_kwargs)
         else:
             hlog.error('sppm 并未启动，不能执行任何操作。')
             exit_status = 1
@@ -129,7 +129,7 @@ def load_log_config(log_level: int):
     logging.getLogger().setLevel(LOG_LEVEL_NAMES[log_level])
 
 
-def sppm_start(child_callback, child_help_desc, *child_args):
+def sppm_start(child_callback, child_help_desc, *child_args, **child_kwargs):
     """
     sppm启动方法
     @param child_callback: 子进程启动函数
@@ -148,7 +148,7 @@ def sppm_start(child_callback, child_help_desc, *child_args):
 
         # 一些动作不需要守护进程执行
         if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown or cmd_args.status:
-            process_manager(cmd_args, child_callback, *child_args)
+            process_manager(cmd_args, child_callback, *child_args, **child_kwargs)
         else:
             log_file_descriptors = []
 
@@ -157,7 +157,7 @@ def sppm_start(child_callback, child_help_desc, *child_args):
                 log_file_descriptors.append(log_handler.stream)
 
             with daemon.DaemonContext(files_preserve=log_file_descriptors, working_directory=os.getcwd()):
-                process_manager(cmd_args, child_callback, *child_args)
+                process_manager(cmd_args, child_callback, *child_args, **child_kwargs)
     except Exception as e:
         # 使用异常防止PID被删除两次的问题
         cleanup()

@@ -11,14 +11,14 @@ from sppm.settings import hlog, SPPM_CONFIG
 from sppm.utils import cleanup
 
 
-def action_start(is_no_daemon, target_callback, child_callback, *child_args):
+def action_start(is_no_daemon, target_callback, child_callback, *child_args, **child_kwargs):
     with open(SPPM_CONFIG.pid_file, 'w') as f:
         f.write(str(os.getpid()))
 
     if is_no_daemon:
         hlog.info('**** 按Ctrl+C可以终止运行 ****')
 
-    child_process = Process(target=target_callback, args=(child_callback, *child_args))
+    child_process = Process(target=target_callback, args=(child_callback, *child_args), kwargs=child_kwargs)
     child_process.start()
 
     ProcessStatusLock.lock(child_process.pid, SPPM_CONFIG.lock_file)
@@ -42,9 +42,9 @@ def action_stop(child_pid):
         action_shutdown(child_pid)
 
 
-def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *child_args):
+def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *child_args, **child_kwargs):
     action_stop(child_pid)
-    action_start(is_no_daemon, target_callback, child_callback, *child_args)
+    action_start(is_no_daemon, target_callback, child_callback, *child_args, **child_kwargs)
 
 
 def action_shutdown(child_pid):
@@ -61,9 +61,9 @@ def action_shutdown(child_pid):
     cleanup()
 
 
-def action_restart(child_pid, target_callback, is_no_daemon, child_callback, *child_args):
+def action_restart(child_pid, target_callback, is_no_daemon, child_callback, *child_args, **child_kwargs):
     action_shutdown(child_pid)
-    action_start(is_no_daemon, target_callback, child_callback, *child_args)
+    action_start(is_no_daemon, target_callback, child_callback, *child_args, **child_kwargs)
 
 
 def action_status():
