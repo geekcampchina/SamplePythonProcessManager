@@ -1,0 +1,48 @@
+[build-system]
+requires = ['setuptools']
+build-backend = 'setuptools.build_meta'
+
+[project]
+requires-python = ">=3.8.5"
+name = 'sppm'
+description = '一个简化进程管理的 Python 库，丰富的命令行控制参数满足各种运行需求'
+authors = [
+    { name = 'Chengdu Geek Camp', email = 'lq@cdgeekcamp.com' }
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = 'MIT' }
+classifiers = [
+    'Operating System :: POSIX :: Linux',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Topic :: Software Development :: Libraries :: Python Modules'
+]
+dependencies = [
+    'python-daemon',
+    'happy-python',
+    'psutil',
+    'setproctitle',
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = 'https://github.com/geekcampchina/SamplePythonProcessManager'
+Source = 'https://github.com/geekcampchina/SamplePythonProcessManager'
+Home-page = 'https://github.com/geekcampchina/SamplePythonProcessManager'
+
+[project.scripts]
+sppm_cli = "sppm_cli:main"
+
+[tool.setuptools.dynamic]
+version = {file = ['sppm_help/version.txt']}
+
+[tool.setuptools]
+packages = ['sppm', 'sppm_help']
+platforms = ['Linux']
+py-modules = ['sppm_cli']
+
+[tool.setuptools.package-data]
+sppm_help=['version.txt']

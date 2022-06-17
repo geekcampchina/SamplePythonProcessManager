@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import multiprocessing
 from time import sleep
+
+from setproctitle import setproctitle
 
 logger = logging.getLogger()
 
@@ -12,6 +15,8 @@ def foo():
     需要启动子进程的函数
     子进程任务foo，该任务中有阻塞执行的情况，需要利用文件锁通信，否则触发终止信号后需要等阻塞完之后才能退出
     """
+    setproctitle(multiprocessing.current_process().name)
+
     exit_args = "arg_foo"
     n = 0
 

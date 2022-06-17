@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import multiprocessing
 from time import sleep
+
+from setproctitle import setproctitle
 
 logger = logging.getLogger()
 
@@ -11,6 +14,8 @@ def foo(*args, **kwargs):
     """
     子进程任务foo，该任务中没有阻塞执行的情况，不需要利用文件锁通信
     """
+    setproctitle(multiprocessing.current_process().name)
+
     exit_args = "arg_foo"
     n = 0
     logger.debug(args)

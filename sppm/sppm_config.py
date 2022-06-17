@@ -43,10 +43,10 @@ class SppmConfig:
         self.mkdirs()
 
     def load_env(self):
-        if ENV_VAR_NAME not in os.environ:
-            self.env_file_path = Path(sys.argv[0]).absolute().parent / DEFAULT_CONFIG_FILENAME
-        else:
+        if ENV_VAR_NAME in os.environ:
             self.env_file_path = os.environ[ENV_VAR_NAME]
+        else:
+            self.env_file_path = Path(sys.argv[0]).absolute().parent / DEFAULT_CONFIG_FILENAME
 
     def check_env(self):
         """

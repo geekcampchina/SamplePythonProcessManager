@@ -11,6 +11,17 @@ from sppm.settings import hlog, SPPM_CONFIG
 from sppm.utils import cleanup
 
 
+def kills(pid, sig):
+    import psutil
+
+    parent = psutil.Process(pid)
+
+    for child in parent.children(recursive=True):
+        child.kill()
+
+    os.kill(pid, sig)
+
+
 def action_start(is_no_daemon, target_callback, child_callback, *child_args, **child_kwargs):
     with open(SPPM_CONFIG.pid_file, 'w') as f:
         f.write(str(os.getpid()))
@@ -18,7 +29,10 @@ def action_start(is_no_daemon, target_callback, child_callback, *child_args, **c
     if is_no_daemon:
         hlog.info('**** 按Ctrl+C可以终止运行 ****')
 
-    child_process = Process(target=target_callback, args=(child_callback, *child_args), kwargs=child_kwargs)
+    child_process = Process(name='sppm: worker process',
+                            target=target_callback,
+                            args=(child_callback, *child_args),
+                            kwargs=child_kwargs)
     child_process.start()
 
     ProcessStatusLock.lock(child_process.pid, SPPM_CONFIG.lock_file)
@@ -32,7 +46,7 @@ def action_start(is_no_daemon, target_callback, child_callback, *child_args, **c
 def action_stop(child_pid):
     # noinspection PyBroadException
     try:
-        os.kill(child_pid, signal.SIGTERM)
+        kills(child_pid, signal.SIGTERM)
     except ProcessLookupError:
         cleanup()
 
@@ -50,10 +64,10 @@ def action_reload(child_pid, target_callback, is_no_daemon, child_callback, *chi
 def action_shutdown(child_pid):
     # noinspection PyBroadException
     try:
-        os.kill(child_pid, signal.SIGTERM)
+        kills(child_pid, signal.SIGTERM)
         hlog.info('当前处于强杀模式下，子进程 %d 将被强制杀死......' % child_pid)
 
-        os.kill(child_pid, signal.SIGKILL)
+        kills(child_pid, signal.SIGKILL)
     except Exception:
         hlog.info('子进程已经退出')
 

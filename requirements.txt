@@ -1,3 +1,4 @@
 python-daemon
-Happy-Python
+happy-python
 psutil
+setproctitle
