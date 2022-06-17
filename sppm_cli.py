@@ -60,7 +60,7 @@ def cli_build_help():
 
     cli_parser.add_argument('shell',
                             help='执行的Shell命令，配合 --start 参数使用',
-                            nargs=1)
+                            nargs='?')
 
     return cli_parser
 
@@ -103,6 +103,10 @@ def main():
 
     if not is_alnum_and_underscore(cmd_args.name):
         hlog.error('"name"参数值仅支持字母、数字和下划线组成的字符串')
+        exit(1)
+
+    if (cmd_args.start or cmd_args.restart) and (cmd_args.shell is None or len(cmd_args.shell) == 0):
+        hlog.error('指定"start"参数或"restart"参数后，必须同时指定Shell命令')
         exit(1)
 
     if os.getgid() != 0:

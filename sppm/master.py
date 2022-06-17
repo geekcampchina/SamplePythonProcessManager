@@ -46,7 +46,7 @@ def process_manager(cmd_args, child_callback, *child_args, **child_kwargs):
             elif cmd_args.shutdown:
                 action_shutdown(child_pid)
             elif cmd_args.restart:
-                action_restart(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args)
+                action_restart(child_pid, start_child, cmd_args.no_daemon, child_callback, *child_args, **child_kwargs)
             elif cmd_args.status:
                 action_status()
             else:
@@ -109,4 +109,4 @@ def sppm_start(child_callback, child_help_desc, *child_args, **child_kwargs):
 
 
 def sppm_start_shell(child_callback, cmd_args):
-    _sppm_start(cmd_args, child_callback, shell=cmd_args.shell[0])
+    _sppm_start(cmd_args, child_callback, shell=cmd_args.shell)
