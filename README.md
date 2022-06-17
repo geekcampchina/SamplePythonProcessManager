@@ -10,7 +10,7 @@
 - 需要驻留后台
 
 ## 特点
-__极少代码侵入，即可达到优雅的停止、重载（重启），不需要 `kill -9` 强制杀死进程，不影响业务数据处理或写入。__
+极少代码侵入，即可达到优雅的停止、重载（重启），不需要 `kill -9` 强制杀死进程，不影响业务数据处理或写入，也可以直接使用sppm_cli将Shell命令封装成服务进程。__
 
 ## 安装
 
@@ -18,9 +18,64 @@ __极少代码侵入，即可达到优雅的停止、重载（重启），不需
 pip install sppm
 ```
 
-## 用法
+## sppm_cli（sppm客户端）说明
 
-    usage: examples/example.py --no-daemon -d -v -l [--start|--stop|--reload|--shutdown|--restart|--status]
+### 用法
+
+    usage: /usr/bin/sppm_cli --no-daemon -v -l --name progress_name [--start|--stop|--reload|--shutdown|--restart|--status] [shell]
+    
+    Sample Python Process Manager 客户端，直接将Shell命令转换为可管理的服务进程，方便管理。比如管理SpringBoot程序
+    
+    positional arguments:
+      shell                 执行的Shell命令，配合 --start 参数使用
+    
+    options:
+      -h, --help            show this help message and exit
+      --no-daemon           不使用进程管理模式
+      -l {0,1,2,3,4,5}, --log-level {0,1,2,3,4,5}
+                            日志级别，0（CRITICAL）、1（ERROR）、2（WARNING）、3（INFO）、4（DEBUG）、5（TRACE），默认等级3
+      --start               启动子进程
+      --stop                等待子进程正常退出
+      --reload              等待子进程正常退出，并启动新的子进程
+      --shutdown            强制杀掉子进程
+      --restart             强制杀掉子进程，并启动新的子进程
+      --status              显示子进程状态
+      -v, --version         显示版本信息
+      --name NAME           显示的进程名称，仅支持字母、数字和下划线组成的字符串
+
+### 使用实例
+
+#### 启动服务进程
+
+`sppm_cli --name foo '/usr/bin/python -m http.server' --start`
+
+#### 查看服务进程
+
+`sppm_cli --name foo --status`
+
+    pid                  : 237764
+    ppid                 : 237763
+    alive                : true
+    uptime               : 23 second(s)
+    human readable uptime: 23 second(s)
+    create time          : 2022-06-17 17:58:42.470000
+    active               : false
+    last active time     : 2022-06-17 17:58:43.300041
+
+
+#### 重启服务进程
+
+`sppm_cli --name foo '/usr/bin/python -m http.server' --restart`
+
+#### 停止服务进程
+
+`sppm_cli --name foo --stop`
+
+## sppm代码库说明
+
+### 用法
+
+    usage: examples/example.py --no-daemon -v -l [--start|--stop|--reload|--shutdown|--restart|--status]
 
     简化进程管理的命令行工具
 
@@ -28,7 +83,7 @@ pip install sppm
     -h, --help            show this help message and exit
     --no-daemon           不使用进程管理模式
     -l {0,1,2,3,4,5}, --log-level {0,1,2,3,4,5}
-                          日志级别，CRITICAL|ERROR|WARNING|INFO|DEBUG|TRACE，默认等级3（INFO）
+                    日志级别，0（CRITICAL）、1（ERROR）、2（WARNING）、3（INFO）、4（DEBUG）、5（TRACE），默认等级3
     --start               启动子进程
     --stop                等待子进程正常退出
     --reload              等待子进程正常退出，并启动新的子进程
@@ -37,9 +92,9 @@ pip install sppm
     --status              显示子进程状态
     -v, --version         显示版本信息
 
-## 使用
+### 使用
 
-### 代码
+#### 代码
 
 ```python
 import sppm
@@ -49,11 +104,11 @@ sppm.sppm_start(foo)
 
 更多细节，请查看 `examples/example.py` 以及 `examples/example_working_lock.py`
 
-### 管理
+#### 管理
 
 更多使用方法，请执行 `python3 examples/example.py -h` 查看帮助信息。
 
-#### 启动
+##### 启动
 ```bash
 python3 examples/example.py --start
 ```
@@ -73,7 +128,7 @@ python3 examples/example.py --start
 python3 examples/example.py --start -l 5
 ```
 
-#### 查看状态
+##### 查看状态
 ```bash
 python3 examples/example.py --status
 ```
@@ -88,12 +143,12 @@ python3 examples/example.py --status
     last active time     : 2019-12-01 18:32:30.696024
 
 
-#### 停止
+##### 停止
 ```bash
 python3 examples/example.py --stop
 ```
 
-### 运行多个程序
+#### 运行多个程序
 
 ```bash
 python3 examples/example.py --start
@@ -123,7 +178,7 @@ SPPM_ENV=examples/.sppm_env_working_lock python examples/example_working_lock.py
     last active time     : 2019-12-01 18:50:06.127305
 
 
-### 配置文件
+#### 配置文件
 
 默认情况下，程序自动从环境变量 `SPPM_ENV` 加载 `Python` 文件目录下的 `.sppm_env`。
 
