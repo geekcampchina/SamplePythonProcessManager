@@ -6,6 +6,7 @@ import logging
 import os
 import signal
 import sys
+from pathlib import Path
 
 import daemon
 
@@ -62,6 +63,18 @@ def process_manager(cmd_args, child_callback, *child_args, **child_kwargs):
             exit_status = 1
 
 
+def load_default_log_config(log_level: int):
+    log_file = Path(SPPM_CONFIG.log_file)
+
+    file_handler = logging.FileHandler(str(log_file))
+    formatter = logging.Formatter('%(asctime)s %(process)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
+
+    logger = logging.getLogger()
+    logger.addHandler(file_handler)
+    logger.setLevel(log_level)
+
+
 def _sppm_start(cmd_args, child_callback, *child_args, **child_kwargs):
     """
     sppm启动方法
@@ -79,7 +92,7 @@ def _sppm_start(cmd_args, child_callback, *child_args, **child_kwargs):
             # 前台运行收到 CTRL+C 信号，直接回调，然后退出。
             signal.signal(signal.SIGINT, sigint_handler)
 
-        hlog.set_level(cmd_args.log_level)
+        load_default_log_config(cmd_args.log_level)
 
         # 一些动作不需要守护进程执行
         if cmd_args.no_daemon or cmd_args.stop or cmd_args.shutdown or cmd_args.status:
