@@ -24,7 +24,7 @@ def kills(pid, sig):
 
 def action_start(is_no_daemon, target_callback, child_callback, *child_args, **child_kwargs):
     with open(SPPM_CONFIG.pid_file, 'w') as f:
-        f.write(str(os.getpid()))
+        f.write(str(os.getpid()) + '\n')
 
     if is_no_daemon:
         hlog.info('**** 按Ctrl+C可以终止运行 ****')
@@ -38,7 +38,7 @@ def action_start(is_no_daemon, target_callback, child_callback, *child_args, **c
     ProcessStatusLock.lock(child_process.pid, SPPM_CONFIG.lock_file)
 
     with open(SPPM_CONFIG.child_pid_file, 'w') as f:
-        f.write(str(child_process.pid))
+        f.write(str(child_process.pid) + '\n')
 
     if 'user' in child_kwargs:
         setting_resource_permission(child_kwargs['user'])
