@@ -75,9 +75,11 @@ def cli_build_help():
 def build_sppm_cli_cfg(cfg_name):
     from pathlib import Path
 
+    run_dir = '/run' if os.path.exists('/run') else '/var/run'
+
     config = {
-        'pid': ('/var/run/%s.pid' % cfg_name),
-        'child_pid': ('/var/run/child_%s.pid' % cfg_name),
+        'pid': ('%s/%s.pid' % (run_dir, cfg_name)),
+        'child_pid': ('%s/child_%s.pid' % (run_dir, cfg_name)),
         'lock': ('/var/lock/subsys/%s' % cfg_name),
         'log': ('/var/log/sppm_cli/%s.log' % cfg_name),
         'timeout': 0
