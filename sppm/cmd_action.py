@@ -8,7 +8,7 @@ from multiprocessing import Process
 from sppm.process_status import ProcessStatus
 from sppm.process_status_lock import ProcessStatusLock
 from sppm.settings import hlog, SPPM_CONFIG
-from sppm.utils import cleanup
+from sppm.utils import cleanup, setting_resource_permission
 
 
 def kills(pid, sig):
@@ -40,7 +40,13 @@ def action_start(is_no_daemon, target_callback, child_callback, *child_args, **c
     with open(SPPM_CONFIG.child_pid_file, 'w') as f:
         f.write(str(child_process.pid))
 
+    if 'user' in child_kwargs:
+        setting_resource_permission(child_kwargs['user'])
+
     child_process.join()
+
+    # 不管子进程是否切换运行用户，在此处都是root权限，可成功删除
+    cleanup()
 
 
 def action_stop(child_pid):

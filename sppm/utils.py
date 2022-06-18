@@ -2,9 +2,29 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pwd
 import signal
 
 from sppm.settings import hlog, signals, SPPM_CONFIG
+
+
+def setting_resource_permission(user: str) -> None:
+    try:
+        user_info = pwd.getpwnam(user)
+        gid = user_info.pw_gid
+        uid = user_info.pw_uid
+
+        if os.path.exists(SPPM_CONFIG.pid_file):
+            os.chown(path=SPPM_CONFIG.pid_file, gid=gid, uid=uid)
+
+        if os.path.exists(SPPM_CONFIG.child_pid_file):
+            os.chown(path=SPPM_CONFIG.child_pid_file, gid=gid, uid=uid)
+
+        if os.path.exists(SPPM_CONFIG.lock_file):
+            os.chown(path=SPPM_CONFIG.lock_file, gid=gid, uid=uid)
+    except KeyError:
+        hlog.error('运行用户"%s"不存在' % user)
+        exit(1)
 
 
 def cleanup():
