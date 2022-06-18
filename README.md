@@ -48,7 +48,7 @@ pip install sppm
 
 #### 启动服务进程
 
-`sppm_cli --name foo '/usr/bin/python -m http.server' --start`
+`sppm_cli --name foo '/usr/bin/python -m http.server' --start --user $USER`
 
 #### 查看服务进程
 
@@ -66,7 +66,7 @@ pip install sppm
 
 #### 重启服务进程
 
-`sppm_cli --name foo '/usr/bin/python -m http.server' --restart`
+`sppm_cli --name foo '/usr/bin/python -m http.server' --restart --user $USER`
 
 #### 停止服务进程
 
