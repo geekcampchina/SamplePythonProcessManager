@@ -27,7 +27,7 @@ pip install sppm
     Sample Python Process Manager 客户端，直接将Shell命令转换为可管理的服务进程，方便管理。比如管理SpringBoot程序
     
     positional arguments:
-      shell                 执行的Shell命令，配合 --start 参数使用
+      shell                 执行的Shell命令，配合 --start 或 --restart 参数使用
     
     options:
       -h, --help            show this help message and exit
@@ -42,6 +42,7 @@ pip install sppm
       --status              显示子进程状态
       -v, --version         显示版本信息
       --name NAME           显示的进程名称，仅支持字母、数字和下划线组成的字符串
+      --user USER           指定运行Shell命令的用户，配合 --start 或 --restart 参数使用
 
 ### 使用实例
 
@@ -189,3 +190,4 @@ SPPM_ENV=examples/.sppm_env_working_lock python examples/example_working_lock.py
     log=/tmp/example.log
 
 运行多个程序时，每个程序必须单独配置环境变量 `SPPM_ENV` 指向不同的配置文件。
+      --user USER           指定运行Shell命令的用户，配合 --start 和 --restart 参数使用

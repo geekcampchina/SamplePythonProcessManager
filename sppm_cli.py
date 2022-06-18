@@ -3,6 +3,7 @@
 import multiprocessing
 import argparse
 import os
+import pwd
 import sys
 
 from happy_python import HappyLog
@@ -12,11 +13,7 @@ from sppm_help import build_sppm_help
 hlog = HappyLog.get_instance()
 
 
-def foo(*args, **kwargs):
-    """
-    子进程任务foo，该任务中没有阻塞执行的情况，不需要利用文件锁通信
-    """
-
+def child_callback(*args, **kwargs):
     from happy_python import get_exit_status_of_cmd
     from setproctitle import setproctitle
 
@@ -25,31 +22,36 @@ def foo(*args, **kwargs):
 
     setproctitle(multiprocessing.current_process().name)
 
-    get_exit_status_of_cmd(kwargs['shell'])
+    try:
+        user_info = pwd.getpwnam(kwargs['user'])
+
+        # 切换系统用户，然后运行命令
+        # 必须先设置组
+        os.setgid(user_info.pw_gid)
+        os.setuid(user_info.pw_uid)
+
+        get_exit_status_of_cmd(kwargs['shell'])
+    except KeyError:
+        hlog.error('运行用户"%s"不存在' % kwargs['user'])
+        exit(1)
+    except PermissionError:
+        hlog.error('无法切换至运行用户"%s"，没有系统权限' % kwargs['user'])
+        exit(1)
 
 
 def cli_build_help():
-    def get_version():
-        from pathlib import Path
-
-        version_file = Path(__file__).parent / 'sppm' / 'version.txt'
-
-        with open(str(version_file), 'r', encoding='utf-8') as f:
-            __version__ = f.read().strip()
-            return __version__
-
-    cli_parser = \
-        argparse.ArgumentParser(prog=sys.argv[0],
-                                description='Sample Python Process Manager 客户端，直接将Shell命令转换为可管理的服务进程，'
-                                            '方便管理。比如管理SpringBoot程序',
-                                usage='%(prog)s '
-                                      '--no-daemon '
-                                      '-v '
-                                      '-l '
-                                      '--name progress_name '
-                                      '[--start|--stop|--reload|--shutdown|--restart|--status] '
-                                      '[shell]'
-                                )
+    cli_parser = argparse.ArgumentParser(prog=sys.argv[0],
+                                         description='Sample Python Process Manager 客户端，直接将Shell命令'
+                                                     '转换为可管理的服务进程，方便管理。比如管理SpringBoot程序',
+                                         usage='%(prog)s '
+                                               '--no-daemon '
+                                               '-v '
+                                               '-l '
+                                               '--name progress_name '
+                                               '[--start|--stop|--reload|--shutdown|--restart|--status] '
+                                               '--user user'
+                                               '[shell]'
+                                         )
 
     build_sppm_help(cli_parser)
 
@@ -58,8 +60,13 @@ def cli_build_help():
                             type=str,
                             required=True)
 
+    cli_parser.add_argument('--user',
+                            help='指定运行Shell命令的用户，配合 --start 或 --restart 参数使用',
+                            type=str,
+                            required=False)
+
     cli_parser.add_argument('shell',
-                            help='执行的Shell命令，配合 --start 参数使用',
+                            help='执行的Shell命令，配合 --start 或 --restart 参数使用',
                             nargs='?')
 
     return cli_parser
@@ -70,7 +77,7 @@ def build_sppm_cli_cfg(cfg_name):
 
     config = {
         'pid': ('/var/run/%s.pid' % cfg_name),
-        'child_pid': ('/var/run/%s.pid' % cfg_name),
+        'child_pid': ('/var/run/child_%s.pid' % cfg_name),
         'lock': ('/var/lock/subsys/%s' % cfg_name),
         'log': ('/var/log/sppm_cli/%s.log' % cfg_name),
         'timeout': 0
@@ -105,8 +112,16 @@ def main():
         hlog.error('"name"参数值仅支持字母、数字和下划线组成的字符串')
         exit(1)
 
-    if (cmd_args.start or cmd_args.restart) and (cmd_args.shell is None or len(cmd_args.shell) == 0):
+    is_start_type_cmd = cmd_args.start or cmd_args.restart
+    is_shell = cmd_args.shell and len(cmd_args.shell) != 0
+    is_user = cmd_args.user and len(cmd_args.user) != 0
+
+    if is_start_type_cmd and not is_shell:
         hlog.error('指定"start"参数或"restart"参数后，必须同时指定Shell命令')
+        exit(1)
+
+    if is_start_type_cmd and not is_user:
+        hlog.error('指定"start"参数或"restart"参数后，必须同时指定运行用户')
         exit(1)
 
     if os.getgid() != 0:
@@ -127,7 +142,7 @@ def main():
 
         import sppm
 
-    sppm.sppm_start_shell(foo, cmd_args)
+    sppm.sppm_start_shell(child_callback, cmd_args)
 
 
 if __name__ == "__main__":

@@ -109,4 +109,4 @@ def sppm_start(child_callback, child_help_desc, *child_args, **child_kwargs):
 
 
 def sppm_start_shell(child_callback, cmd_args):
-    _sppm_start(cmd_args, child_callback, shell=cmd_args.shell)
+    _sppm_start(cmd_args, child_callback, shell=cmd_args.shell, user=cmd_args.user)
