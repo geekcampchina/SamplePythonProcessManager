@@ -8,9 +8,7 @@ from happy_python import HappyLog
 
 from sppm.sppm_config import SppmConfig
 
-CONFIG_DIR = PurePath(__file__).parents[1] / 'conf'
-LOG_CONF_FILE = str(CONFIG_DIR / 'log.ini')
-hlog = HappyLog.get_instance(LOG_CONF_FILE)
+hlog = HappyLog.get_instance()
 
 signals = {
     signal.SIGINT: False,
